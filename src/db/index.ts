@@ -94,5 +94,9 @@ export async function initializeDatabase() {
         description: 'Advanced literary and abstract grammar.',
       },
     ]);
+
+    // Seed kana data (Stage 0)
+    const { seedKanaData } = await import('./seeds/kana');
+    await seedKanaData(db);
   }
 }

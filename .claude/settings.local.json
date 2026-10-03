@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(git add *)",
-      "Bash(git commit -m 'Initialize Michi scaffold: React + TypeScript + Dexie + FSRS *)"
+      "Bash(git commit -m 'Initialize Michi scaffold: React + TypeScript + Dexie + FSRS *)",
+      "Bash(npm install *)",
+      "Bash(git commit -m 'Phase 1 WIP: Kana data + FSRS + lesson components *)"
     ]
   }
 }

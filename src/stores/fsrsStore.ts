@@ -55,6 +55,11 @@ export const useFSRSStore = create<FSRSStore>((set, get) => ({
 
   recordReview: async (cardId: string, rating: 1 | 2 | 3 | 4, elapsedMs: number) => {
     try {
+      const { scheduleCard } = await import('@/services/fsrsService');
+
+      const card = await db.cards.get(cardId);
+      if (!card) return;
+
       const reviewLog: ReviewLog = {
         id: 'review_' + Date.now(),
         cardId,
@@ -65,8 +70,14 @@ export const useFSRSStore = create<FSRSStore>((set, get) => ({
 
       await db.reviewLogs.add(reviewLog);
 
-      // TODO: Apply FSRS algorithm to update card due date and state
-      // This will be integrated with ts-fsrs package
+      // Apply FSRS algorithm to update card state
+      const newFSRSState = scheduleCard(card.fsrsState, rating, new Date());
+
+      // Update card with new FSRS state
+      await db.cards.update(cardId, {
+        fsrsState: newFSRSState,
+        lastReviewedAt: new Date(),
+      });
 
       const { dueCards, currentCardIndex } = get();
       const updated = dueCards.filter((c) => c.id !== cardId);
@@ -74,6 +85,8 @@ export const useFSRSStore = create<FSRSStore>((set, get) => ({
         dueCards: updated,
         currentCardIndex: Math.min(currentCardIndex, updated.length - 1),
       });
+
+      console.log(`✓ Card ${cardId} scheduled for ${newFSRSState.due.toLocaleDateString()}`);
     } catch (error) {
       console.error('Failed to record review:', error);
     }

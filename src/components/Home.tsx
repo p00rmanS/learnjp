@@ -3,6 +3,7 @@ import { useUserStore } from '@/stores/userStore';
 import { useFSRSStore } from '@/stores/fsrsStore';
 import DailyPlan from './DailyPlan';
 import ReviewSession from './ReviewSession';
+import LessonBrowser from './LessonBrowser';
 
 type Screen = 'home' | 'review' | 'lessons';
 
@@ -70,12 +71,7 @@ export default function Home() {
       {screen === 'review' && <ReviewSession onComplete={() => setScreen('home')} />}
 
       {screen === 'lessons' && (
-        <div className="card p-6">
-          <button onClick={() => setScreen('home')} className="mb-4 text-brand-600 hover:underline">
-            ← Back
-          </button>
-          <p className="text-gray-600">Lesson browser coming soon...</p>
-        </div>
+        <LessonBrowser onBack={() => setScreen('home')} onLessonStart={() => setScreen('home')} />
       )}
     </div>
   );
