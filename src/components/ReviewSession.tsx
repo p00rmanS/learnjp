@@ -7,7 +7,7 @@ interface ReviewSessionProps {
 }
 
 export default function ReviewSession({ onComplete }: ReviewSessionProps) {
-  const { currentItem, currentCard, progress, isSessionComplete, handleReview, stats } = useReviewSession();
+  const { currentItem, currentCard, progress, isSessionComplete, handleReview } = useReviewSession();
   const [answerSubmitted, setAnswerSubmitted] = useState(false);
 
   if (isSessionComplete) {

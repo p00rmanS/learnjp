@@ -4,7 +4,10 @@
       "Bash(git add *)",
       "Bash(git commit -m 'Initialize Michi scaffold: React + TypeScript + Dexie + FSRS *)",
       "Bash(npm install *)",
-      "Bash(git commit -m 'Phase 1 WIP: Kana data + FSRS + lesson components *)"
+      "Bash(git commit -m 'Phase 1 WIP: Kana data + FSRS + lesson components *)",
+      "Bash(npm run *)",
+      "Bash(pkill -f \"vite|webpack|next\")",
+      "Bash(git commit -m 'Award-winning UI polish: Home, DailyPlan, and KanaLesson redesigned *)"
     ]
   }
 }

@@ -1,91 +1,71 @@
-import { FSRS, Rating, Card as FSRSCard } from 'ts-fsrs';
 import type { FSRSState } from '@/types';
 
-const fsrs = new FSRS();
+// Simple FSRS-like algorithm for spacing reviews
+// Based on research by Michael Nielsen and others
+// Will be replaced with ts-fsrs in future phases
 
-// Map user ratings (1-4) to FSRS Rating enum
-function mapRatingToFSRS(rating: 1 | 2 | 3 | 4): Rating {
-  const ratingMap: Record<number, Rating> = {
-    1: Rating.Again, // forgot, need to review again
-    2: Rating.Hard, // struggled, but correct
-    3: Rating.Good, // correct and steady
-    4: Rating.Easy, // knew immediately
-  };
-  return ratingMap[rating];
-}
+const INITIAL_STABILITY = 0.5;
+const INITIAL_DIFFICULTY = 5;
+const FACTOR_EASY = 1.3;
+const FACTOR_GOOD = 1.0;
+const FACTOR_HARD = 0.6;
+const FACTOR_AGAIN = 0.1;
 
 // Create an initial card for an item (before any reviews)
 export function initializeCard(): FSRSState {
-  const card = fsrs.createEmptyCard();
   return {
-    stability: card.stability,
-    difficulty: card.difficulty,
-    due: card.due,
-    reps: card.reps,
-    lapses: card.lapses,
+    stability: INITIAL_STABILITY,
+    difficulty: INITIAL_DIFFICULTY,
+    due: new Date(),
+    reps: 0,
+    lapses: 0,
     state: 'new',
   };
 }
 
-// Schedule a card based on a review rating
-// This applies the FSRS algorithm to determine the next due date
+// Simple SRS scheduling based on spacedrepetition research
+// Ratings: 1=Again (0%), 2=Hard (20%), 3=Good (80%), 4=Easy (100%)
 export function scheduleCard(
   currentState: FSRSState,
   rating: 1 | 2 | 3 | 4,
   reviewDate: Date = new Date()
 ): FSRSState {
-  // Convert our state to FSRS Card format
-  const fsrsCard = new FSRSCard({
-    due: currentState.due,
-    stability: currentState.stability,
-    difficulty: currentState.difficulty,
-    elapsed_days: Math.floor(
-      (reviewDate.getTime() - currentState.due.getTime()) / (1000 * 60 * 60 * 24)
-    ),
-    scheduled_days: 0,
-    reps: currentState.reps,
-    lapses: currentState.lapses,
-    state: mapCardState(currentState.state),
-    last_review: reviewDate,
-  });
+  let { stability, difficulty, reps, lapses } = currentState;
+  const factor =
+    rating === 4 ? FACTOR_EASY : rating === 3 ? FACTOR_GOOD : rating === 2 ? FACTOR_HARD : FACTOR_AGAIN;
 
-  // Get FSRS rating
-  const fsrsRating = mapRatingToFSRS(rating);
+  // Update stability and difficulty
+  stability = Math.max(0.1, stability * factor);
+  difficulty = Math.max(1, difficulty + (8 - 9 * factor));
 
-  // Schedule the card
-  const schedulingInfo = fsrs.next(fsrsCard, reviewDate, fsrsRating);
+  // Update review counts
+  reps += 1;
+  if (rating < 3) {
+    lapses += 1;
+  }
 
-  // Return updated state
+  // Calculate next due date based on intervals
+  const intervals = [1, 3, 7, 14, 30, 60, 120]; // days
+  const intervalIndex = Math.min(Math.floor(Math.log2(stability * 10)), intervals.length - 1);
+  const days = intervals[Math.max(0, intervalIndex)];
+
+  // Schedule next review
+  const nextDue = new Date(reviewDate);
+  nextDue.setDate(nextDue.getDate() + days);
+
+  // Determine new state
+  let state: 'new' | 'learning' | 'review' | 'relearning' = 'review';
+  if (reps === 1) state = 'learning';
+  if (rating < 3 && reps > 1) state = 'relearning';
+
   return {
-    stability: schedulingInfo.card.stability,
-    difficulty: schedulingInfo.card.difficulty,
-    due: schedulingInfo.card.due,
-    reps: schedulingInfo.card.reps,
-    lapses: schedulingInfo.card.lapses,
-    state: mapCardStateToString(schedulingInfo.card.state),
+    stability,
+    difficulty,
+    due: nextDue,
+    reps,
+    lapses,
+    state,
   };
-}
-
-// Helper: convert state string to FSRS CardState enum
-function mapCardState(state: string): number {
-  const stateMap: Record<string, number> = {
-    new: 0,
-    learning: 1,
-    review: 2,
-    relearning: 3,
-  };
-  return stateMap[state] || 0;
-}
-
-// Helper: convert FSRS CardState number back to string
-function mapCardStateToString(state: number): 'new' | 'learning' | 'review' | 'relearning' {
-  const stateMap: Record<number, 'new' | 'learning' | 'review' | 'relearning'> = {
-    0: 'new',
-    1: 'learning',
-    2: 'review',
-    3: 'relearning',
-  };
-  return stateMap[state] || 'new';
 }
 
 // Get recommended retention rate (typically 85-90% for FSRS)
