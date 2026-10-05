@@ -287,3 +287,33 @@ Good luck! 🎌
 ---
 
 **Questions?** Reference this audit when prioritizing decisions in Phase 1 & 2.
+
+
+---
+
+## 11. UI/UX audit (added Oct 5, 2026)
+
+PROJECT.md specifies the *what* (screens, flows) but almost nothing about the *feel*. That gap is why the first UI came out generic.
+
+**Gaps in PROJECT.md**
+- No visual direction. "Calm daily plan" and "no manipulation" (Section 1) are principles, but nothing says what calm looks like: palette, type, density, motion.
+- Screens are listed (6.4) with no navigation model. Nothing says how you move between Home, Path, Lessons and Review, so the first build had no nav and dead-end screens.
+- Stage 0 describes content (6 sets, mnemonics) but not the lesson interaction: browse a set, step through characters, see what you have learned.
+- Empty and first-run states are never specified (nothing due, nothing learned yet).
+
+**What went wrong in the first UI pass**
+- Contradicted the doc's own principles: bouncing characters, pulsing glows, gradient buttons and emoji headers are the "gamified" look Section 1 rejects.
+- Katakana units (7-12) had no items, so half of Stage 0 was unclickable.
+- Seeding only ran on a brand-new database, so any older or partial database showed "No lessons available".
+- The Review button depended on stats that never loaded, so it was always disabled.
+
+**Design direction now implemented**
+- Paper background, one blue accent, one vermilion highlight for counts. Flat cards, thin borders, no gradients or emoji.
+- Persistent top nav: Today / Lessons / Review.
+- Lessons: Hiragana / Katakana tabs, unit cards showing progress, per-unit character strip to jump between kana.
+- Every screen has an empty state and a single obvious next action.
+
+**Still to specify before Phase 2**
+- Stroke-order and audio placement on the kana lesson (currently absent).
+- Mobile bottom nav vs. top nav.
+- Dark mode.

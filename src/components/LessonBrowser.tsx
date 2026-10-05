@@ -1,114 +1,119 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { db } from '@/db';
+import { useUserStore } from '@/stores/userStore';
 import KanaLesson from './KanaLesson';
+import { kanaItems } from '@/db/seeds/kana';
 import type { Unit, KanaItem } from '@/types';
 
-interface LessonBrowserProps {
-  onBack: () => void;
-  onLessonStart: (unitId: string) => void;
-}
+type Script = 'hiragana' | 'katakana';
 
-export default function LessonBrowser({ onBack, onLessonStart }: LessonBrowserProps) {
+// Teaching order follows the seed file, not the database's id ordering
+const SEED_ORDER = new Map(kanaItems.map((k, i) => [k.id, i]));
+
+export default function LessonBrowser() {
+  const { user } = useUserStore();
+  const [script, setScript] = useState<Script>('hiragana');
   const [units, setUnits] = useState<Unit[]>([]);
-  const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
-  const [unitKana, setUnitKana] = useState<KanaItem[]>([]);
-  const [currentKanaIndex, setCurrentKanaIndex] = useState(0);
+  const [kanaByUnit, setKanaByUnit] = useState<Record<string, KanaItem[]>>({});
+  const [learnedIds, setLearnedIds] = useState<Set<string>>(new Set());
+  const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
+  const [index, setIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
+  const load = useCallback(async () => {
+    try {
+      const allUnits = await db.units.where('levelId').equals('stage0').toArray();
+      allUnits.sort((a, b) => a.order - b.order);
+      const kana = (await db.items.where('type').equals('kana').toArray()) as KanaItem[];
+      const grouped: Record<string, KanaItem[]> = {};
+      for (const k of kana) (grouped[k.unitId] ||= []).push(k);
+      for (const list of Object.values(grouped)) {
+        list.sort((a, b) => (SEED_ORDER.get(a.id) ?? 0) - (SEED_ORDER.get(b.id) ?? 0));
+      }
+
+      const cards = user ? await db.cards.where('userId').equals(user.id).toArray() : [];
+      setUnits(allUnits);
+      setKanaByUnit(grouped);
+      setLearnedIds(new Set(cards.map((c) => c.itemId)));
+    } catch (error) {
+      console.error('Failed to load lessons:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user]);
+
   useEffect(() => {
-    loadUnits();
-  }, []);
-
-  async function loadUnits() {
-    try {
-      const stage0Units = await db.units.where('levelId').equals('stage0').toArray();
-      setUnits(stage0Units.sort((a, b) => a.order - b.order));
-      setIsLoading(false);
-    } catch (error) {
-      console.error('Failed to load units:', error);
-      setIsLoading(false);
-    }
-  }
-
-  async function selectUnit(unit: Unit) {
-    setSelectedUnit(unit);
-    try {
-      const kana = await db.items
-        .where('unitId')
-        .equals(unit.id)
-        .filter((item) => item.type === 'kana')
-        .toArray();
-      setUnitKana(kana as KanaItem[]);
-      setCurrentKanaIndex(0);
-      onLessonStart(unit.id);
-    } catch (error) {
-      console.error('Failed to load unit kana:', error);
-    }
-  }
+    load();
+  }, [load]);
 
   if (isLoading) {
-    return (
-      <div className="card p-6 text-center">
-        <p className="text-gray-600">Loading lessons...</p>
-      </div>
-    );
+    return <p className="text-stone-500">Loading lessons</p>;
   }
 
-  // Lesson view (showing kana from selected unit)
-  if (selectedUnit && unitKana.length > 0) {
-    const currentKana = unitKana[currentKanaIndex] as KanaItem;
-    const isLastKana = currentKanaIndex === unitKana.length - 1;
+  const selectedUnit = units.find((u) => u.id === selectedUnitId);
+
+  // ---- Single kana lesson ----
+  if (selectedUnit) {
+    const list = kanaByUnit[selectedUnit.id] ?? [];
+    const current = list[index];
+    const isLast = index === list.length - 1;
 
     return (
       <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <button onClick={() => setSelectedUnit(null)} className="text-brand-600 hover:underline">
-            ← Back to Units
+        <div className="flex items-center justify-between">
+          <button onClick={() => setSelectedUnitId(null)} className="btn-ghost -ml-3">
+            Back to lessons
           </button>
-          <div className="text-sm text-gray-600">
-            {currentKanaIndex + 1} / {unitKana.length}
-          </div>
+          <span className="text-sm text-stone-500 tabular-nums">
+            {index + 1} / {list.length}
+          </span>
         </div>
 
-        <KanaLesson
-          kana={currentKana}
-          onLearned={() => {
-            if (isLastKana) {
-              // Unit complete
-              setSelectedUnit(null);
-              setCurrentKanaIndex(0);
-            } else {
-              setCurrentKanaIndex(currentKanaIndex + 1);
-            }
-          }}
-        />
+        <p className="label">{selectedUnit.title}</p>
+
+        {/* Character strip: jump to any kana in the unit */}
+        <div className="flex flex-wrap gap-1.5">
+          {list.map((k, i) => (
+            <button
+              key={k.id}
+              onClick={() => setIndex(i)}
+              aria-label={k.romaji}
+              className={`w-10 h-10 rounded-lg jp-text text-lg border transition-colors ${
+                i === index
+                  ? 'bg-brand-600 border-brand-600 text-white'
+                  : learnedIds.has(k.id)
+                    ? 'bg-brand-50 border-brand-200 text-brand-700'
+                    : 'bg-white border-stone-200 text-stone-700 hover:border-stone-400'
+              }`}
+            >
+              {k.character}
+            </button>
+          ))}
+        </div>
+
+        {current && (
+          <KanaLesson
+            key={current.id}
+            kana={current}
+            learned={learnedIds.has(current.id)}
+            onLearned={async () => {
+              await load();
+              if (!isLast) setIndex(index + 1);
+            }}
+          />
+        )}
 
         <div className="flex gap-2">
-          {currentKanaIndex > 0 && (
-            <button
-              onClick={() => setCurrentKanaIndex(currentKanaIndex - 1)}
-              className="btn-secondary flex-1"
-            >
-              ← Previous
+          <button onClick={() => setIndex(index - 1)} disabled={index === 0} className="btn-secondary flex-1">
+            Previous
+          </button>
+          {isLast ? (
+            <button onClick={() => setSelectedUnitId(null)} className="btn-primary flex-1">
+              Finish unit
             </button>
-          )}
-          {!isLastKana && (
-            <button
-              onClick={() => setCurrentKanaIndex(currentKanaIndex + 1)}
-              className="btn-secondary flex-1"
-            >
-              Skip →
-            </button>
-          )}
-          {isLastKana && (
-            <button
-              onClick={() => {
-                setSelectedUnit(null);
-                setCurrentKanaIndex(0);
-              }}
-              className="btn-primary flex-1"
-            >
-              ✅ Unit Complete
+          ) : (
+            <button onClick={() => setIndex(index + 1)} className="btn-secondary flex-1">
+              Next
             </button>
           )}
         </div>
@@ -116,31 +121,71 @@ export default function LessonBrowser({ onBack, onLessonStart }: LessonBrowserPr
     );
   }
 
-  // Unit selection view
+  // ---- Unit list ----
+  const visible = units.filter((u) => (script === 'hiragana' ? u.order <= 6 : u.order > 6));
+
   return (
-    <div className="space-y-4">
-      <button onClick={onBack} className="mb-4 text-brand-600 hover:underline">
-        ← Back to Home
-      </button>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-semibold">Kana</h1>
+        <p className="text-stone-500 mt-1">Learn the two Japanese syllabaries, one small set at a time.</p>
+      </div>
 
-      <h2 className="text-2xl font-bold mb-4">Stage 0: Kana Bootcamp</h2>
-      <p className="text-gray-600 mb-6">Master hiragana and katakana with spaced repetition.</p>
-
-      <div className="grid gap-3">
-        {units.map((unit) => (
+      <div className="inline-flex p-1 bg-stone-200/70 rounded-lg" role="tablist">
+        {(['hiragana', 'katakana'] as Script[]).map((s) => (
           <button
-            key={unit.id}
-            onClick={() => selectUnit(unit)}
-            className="card p-4 hover:shadow-md hover:border-brand-300 transition text-left border border-gray-200"
+            key={s}
+            role="tab"
+            aria-selected={script === s}
+            onClick={() => setScript(s)}
+            className={`px-4 py-1.5 rounded-md text-sm font-medium capitalize transition-colors ${
+              script === s ? 'bg-white shadow-sm text-ink' : 'text-stone-600'
+            }`}
           >
-            <h3 className="font-bold text-lg">{unit.title}</h3>
-            <p className="text-sm text-gray-600">{unit.theme}</p>
+            <span className="jp-text mr-1.5">{s === 'hiragana' ? 'あ' : 'ア'}</span>
+            {s}
           </button>
         ))}
       </div>
 
-      {units.length === 0 && (
-        <div className="card p-6 text-center text-gray-600">No lessons available yet. Try reloading.</div>
+      <ul className="space-y-3">
+        {visible.map((unit, n) => {
+          const list = kanaByUnit[unit.id] ?? [];
+          const done = list.filter((k) => learnedIds.has(k.id)).length;
+          return (
+            <li key={unit.id}>
+              <button
+                onClick={() => {
+                  setSelectedUnitId(unit.id);
+                  setIndex(Math.max(0, list.findIndex((k) => !learnedIds.has(k.id))));
+                }}
+                disabled={list.length === 0}
+                className="card w-full p-5 text-left hover:border-brand-500 transition-colors disabled:opacity-50"
+              >
+                <div className="flex items-baseline justify-between gap-4">
+                  <div>
+                    <p className="label">Lesson {n + 1}</p>
+                    <h2 className="text-lg font-semibold jp-text mt-0.5">{unit.title}</h2>
+                  </div>
+                  <span className="text-sm text-stone-500 tabular-nums shrink-0">
+                    {done} / {list.length}
+                  </span>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-1 jp-text text-xl text-stone-400">
+                  {list.map((k) => (
+                    <span key={k.id} className={learnedIds.has(k.id) ? 'text-brand-600' : ''}>
+                      {k.character}
+                    </span>
+                  ))}
+                </div>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+
+      {visible.length === 0 && (
+        <div className="card p-6 text-center text-stone-500">No lessons found. Try reloading the page.</div>
       )}
     </div>
   );

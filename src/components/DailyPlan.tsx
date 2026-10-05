@@ -6,86 +6,63 @@ interface DailyPlanProps {
     review: number;
     estimatedMinutes: number;
   };
-  onStartReview?: () => void;
+  learnedKana: number;
+  totalKana: number;
+  onStartReview: () => void;
+  onOpenLessons: () => void;
 }
 
-export default function DailyPlan({ stats }: DailyPlanProps) {
-  const getMotivationalMessage = () => {
-    if (stats.total === 0) return '✨ All caught up! Take a well-deserved break.';
-    if (stats.total <= 5) return '🎯 Just a quick session away from perfection!';
-    if (stats.total <= 15) return '📖 Good study session ahead.';
-    return '💯 Plenty to review today. Let\'s go!';
-  };
-
-  const getProgressColor = () => {
-    if (stats.total === 0) return 'from-green-500 to-emerald-500';
-    if (stats.total <= 10) return 'from-blue-500 to-indigo-500';
-    return 'from-orange-500 to-red-500';
-  };
+export default function DailyPlan({
+  stats,
+  learnedKana,
+  totalKana,
+  onStartReview,
+  onOpenLessons,
+}: DailyPlanProps) {
+  const percent = totalKana ? Math.round((learnedKana / totalKana) * 100) : 0;
 
   return (
-    <div className="card p-6 sm:p-8 border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-md hover:shadow-lg transition-all">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Today's Plan</h2>
-        <div className="text-4xl">📋</div>
-      </div>
+    <section className="card p-6 sm:p-8">
+      <p className="label mb-1">Today</p>
+      {stats.total > 0 ? (
+        <>
+          <h2 className="text-2xl font-semibold">{stats.total} cards to review</h2>
+          <p className="text-stone-500 mt-1">About {stats.estimatedMinutes} min</p>
+          <button onClick={onStartReview} className="btn-primary mt-6">
+            Start review
+          </button>
+        </>
+      ) : learnedKana > 0 ? (
+        <>
+          <h2 className="text-2xl font-semibold">Nothing due right now</h2>
+          <p className="text-stone-500 mt-1">Learn a few more kana while you are here.</p>
+          <button onClick={onOpenLessons} className="btn-primary mt-6">
+            Continue lessons
+          </button>
+        </>
+      ) : (
+        <>
+          <h2 className="text-2xl font-semibold">Start with hiragana</h2>
+          <p className="text-stone-500 mt-1">
+            Learn a few characters at a time. Each one you learn is added to your review queue.
+          </p>
+          <button onClick={onOpenLessons} className="btn-primary mt-6">
+            Begin lesson 1
+          </button>
+        </>
+      )}
 
-      {/* Review stats cards */}
-      <div className="space-y-3 mb-6">
-        <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-100 hover:border-blue-300 transition-colors">
-          <div className="flex items-center gap-3">
-            <div className="text-2xl">⚡</div>
-            <div>
-              <p className="text-xs text-gray-600 font-medium">Reviews due</p>
-              <p className="text-lg font-bold text-gray-900">{stats.total} cards</p>
-            </div>
-          </div>
-          <div className="text-right">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100">
-              <span className="w-2 h-2 rounded-full bg-blue-600"></span>
-              <span className="text-sm font-bold text-blue-700">{stats.total}</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-100 hover:border-green-300 transition-colors">
-          <div className="flex items-center gap-3">
-            <div className="text-2xl">⏱️</div>
-            <div>
-              <p className="text-xs text-gray-600 font-medium">Estimated time</p>
-              <p className="text-lg font-bold text-gray-900">~{stats.estimatedMinutes} min</p>
-            </div>
-          </div>
-          <div className="text-right text-sm">
-            <p className="text-gray-600 font-medium">{stats.estimatedMinutes > 0 ? 'Doable!' : 'Ready when you are!'}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Progress bar */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-semibold text-gray-700">Daily Progress</span>
-          <span className="text-xs font-bold text-gray-600">
-            {stats.total === 0 ? '100%' : `${Math.max(10, Math.min(90, Math.floor((stats.total / 50) * 100)))}%`}
+      <div className="mt-8">
+        <div className="flex justify-between text-sm mb-2">
+          <span className="text-stone-600">Kana learned</span>
+          <span className="tabular-nums text-stone-500">
+            {learnedKana} / {totalKana}
           </span>
         </div>
-        <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
-          <div
-            className={`h-full bg-gradient-to-r ${getProgressColor()} transition-all duration-500`}
-            style={{
-              width: `${stats.total === 0 ? 100 : Math.max(10, Math.min(90, Math.floor((stats.total / 50) * 100)))}%`,
-            }}
-          ></div>
+        <div className="h-1.5 bg-stone-200 rounded-full overflow-hidden">
+          <div className="h-full bg-brand-600 rounded-full transition-all" style={{ width: `${percent}%` }} />
         </div>
       </div>
-
-      {/* Motivational message */}
-      <div className="p-4 bg-gradient-to-r from-purple-100 to-pink-100 rounded-xl border border-purple-200">
-        <p className="text-sm sm:text-base text-center text-gray-800 font-medium">
-          {getMotivationalMessage()}
-        </p>
-      </div>
-    </div>
+    </section>
   );
 }

@@ -50,7 +50,7 @@ export const db = new MichiDB();
 export async function initializeDatabase() {
   const count = await db.levels.count();
   if (count === 0) {
-    await db.levels.bulkAdd([
+    await db.levels.bulkPut([
       {
         id: 'stage0',
         name: 'stage0',
@@ -94,9 +94,12 @@ export async function initializeDatabase() {
         description: 'Advanced literary and abstract grammar.',
       },
     ]);
+  }
 
-    // Seed kana data (Stage 0)
-    const { seedKanaData } = await import('./seeds/kana');
+  // Seed kana outside the levels check so older/partial databases get repaired
+  const { seedKanaData, kanaItems } = await import('./seeds/kana');
+  const kanaCount = await db.items.where('type').equals('kana').count();
+  if (kanaCount !== kanaItems.length) {
     await seedKanaData(db);
   }
 }

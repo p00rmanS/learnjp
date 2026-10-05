@@ -7,19 +7,19 @@ export const stage0Units: Unit[] = [
   { id: 'stage0-u2', levelId: 'stage0', order: 2, title: 'さ行・た行', theme: 'Hiragana Set 2: S & T rows' },
   { id: 'stage0-u3', levelId: 'stage0', order: 3, title: 'な行・は行', theme: 'Hiragana Set 3: N & H rows' },
   { id: 'stage0-u4', levelId: 'stage0', order: 4, title: 'ま行・や行・ら行・わ行', theme: 'Hiragana Set 4: Final rows' },
-  { id: 'stage0-u5', levelId: 'stage0', order: 5, title: 'ガギグゲゴ・ザジズゼゾ', theme: 'Hiragana Set 5a: Dakuten (G, Z)' },
-  { id: 'stage0-u6', levelId: 'stage0', order: 6, title: 'ダヂヅデド・バビブベボ・パピプペポ', theme: 'Hiragana Set 5b: Dakuten (D, B, P)' },
+  { id: 'stage0-u5', levelId: 'stage0', order: 5, title: 'が行・ざ行', theme: 'Hiragana Set 5a: Dakuten (G, Z)' },
+  { id: 'stage0-u6', levelId: 'stage0', order: 6, title: 'だ行・ば行・ぱ行', theme: 'Hiragana Set 5b: Dakuten (D, B, P)' },
   // Katakana (same structure)
   { id: 'stage0-u7', levelId: 'stage0', order: 7, title: 'ア行・カ行', theme: 'Katakana Set 1: Basic rows' },
   { id: 'stage0-u8', levelId: 'stage0', order: 8, title: 'サ行・タ行', theme: 'Katakana Set 2: S & T rows' },
   { id: 'stage0-u9', levelId: 'stage0', order: 9, title: 'ナ行・ハ行', theme: 'Katakana Set 3: N & H rows' },
   { id: 'stage0-u10', levelId: 'stage0', order: 10, title: 'マ行・ヤ行・ラ行・ワ行', theme: 'Katakana Set 4: Final rows' },
-  { id: 'stage0-u11', levelId: 'stage0', order: 11, title: 'ガギグゲゴ・ザジズゼゾ', theme: 'Katakana Set 5a: Dakuten (G, Z)' },
-  { id: 'stage0-u12', levelId: 'stage0', order: 12, title: 'ダヂヅデド・バビブベボ・パピプペポ', theme: 'Katakana Set 5b: Dakuten (D, B, P)' },
+  { id: 'stage0-u11', levelId: 'stage0', order: 11, title: 'ガ行・ザ行', theme: 'Katakana Set 5a: Dakuten (G, Z)' },
+  { id: 'stage0-u12', levelId: 'stage0', order: 12, title: 'ダ行・バ行・パ行', theme: 'Katakana Set 5b: Dakuten (D, B, P)' },
 ];
 
 // All kana items (hiragana + katakana + variations)
-export const kanaItems: KanaItem[] = [
+const hiraganaItems: KanaItem[] = [
   // ===== HIRAGANA SET 1: あ行・か行 =====
   // あ行
   { id: 'kana-a', type: 'kana', unitId: 'stage0-u1', character: 'あ', hiragana: 'あ', katakana: 'ア', romaji: 'a', pronunciation: 'ah', strokeCount: 3, mnemonic: 'simple curve, like letter a', createdAt: new Date() },
@@ -81,8 +81,6 @@ export const kanaItems: KanaItem[] = [
   { id: 'kana-ro', type: 'kana', unitId: 'stage0-u4', character: 'ろ', hiragana: 'ろ', katakana: 'ロ', romaji: 'ro', pronunciation: 'roh', strokeCount: 4, mnemonic: 'looks like a box', createdAt: new Date() },
   // わ行
   { id: 'kana-wa', type: 'kana', unitId: 'stage0-u4', character: 'わ', hiragana: 'わ', katakana: 'ワ', romaji: 'wa', pronunciation: 'wah', strokeCount: 4, mnemonic: 'looks like a crown', createdAt: new Date() },
-  { id: 'kana-wi', type: 'kana', unitId: 'stage0-u4', character: 'ゐ', hiragana: 'ゐ', katakana: 'ヰ', romaji: 'wi', pronunciation: 'wee', strokeCount: 4, mnemonic: 'archaic "wi" (rarely used)', createdAt: new Date() },
-  { id: 'kana-we', type: 'kana', unitId: 'stage0-u4', character: 'ゑ', hiragana: 'ゑ', katakana: 'ヱ', romaji: 'we', pronunciation: 'weh', strokeCount: 4, mnemonic: 'archaic "we" (rarely used)', createdAt: new Date() },
   { id: 'kana-wo', type: 'kana', unitId: 'stage0-u4', character: 'を', hiragana: 'を', katakana: 'ヲ', romaji: 'wo', pronunciation: 'oh', strokeCount: 4, mnemonic: 'looks like "wa" variant (object particle)', createdAt: new Date() },
   { id: 'kana-n', type: 'kana', unitId: 'stage0-u4', character: 'ん', hiragana: 'ん', katakana: 'ン', romaji: 'n', pronunciation: 'ng', strokeCount: 1, mnemonic: 'one curved line (ending only)', createdAt: new Date() },
 
@@ -119,24 +117,30 @@ export const kanaItems: KanaItem[] = [
   { id: 'kana-pe', type: 'kana', unitId: 'stage0-u6', character: 'ぺ', hiragana: 'ぺ', katakana: 'ペ', romaji: 'pe', pronunciation: 'peh', strokeCount: 1, mnemonic: 'へ + handakuten', createdAt: new Date() },
   { id: 'kana-po', type: 'kana', unitId: 'stage0-u6', character: 'ぽ', hiragana: 'ぽ', katakana: 'ポ', romaji: 'po', pronunciation: 'poh', strokeCount: 4, mnemonic: 'ほ + handakuten', createdAt: new Date() },
 
-  // ===== KATAKANA (exact same as hiragana, just katakana character set) =====
-  // Since kana items already contain both hiragana and katakana fields, the above covers both
-  // But we need separate items for katakana units for lesson flow
-  // (Copy of hiragana items mapped to katakana units - abbreviated for brevity)
-  // Units 7-12 contain the exact same structure as units 1-6 but in katakana order
 ];
 
-// Helper function to seed database
+// Katakana items mirror the hiragana set; unit N maps to unit N+6.
+const katakanaItems: KanaItem[] = hiraganaItems.map((h) => {
+  const unitNo = Number(h.unitId.replace('stage0-u', '')) + 6;
+  return {
+    ...h,
+    id: h.id.replace('kana-', 'kata-'),
+    unitId: `stage0-u${unitNo}`,
+    character: h.katakana,
+    mnemonic: `Katakana ${h.katakana} — same sound as hiragana ${h.hiragana}`,
+  };
+});
+
+export const kanaItems: KanaItem[] = [...hiraganaItems, ...katakanaItems];
+
+// Idempotent: safe to run on every start, repairs partially seeded databases.
 export async function seedKanaData(db: any) {
   try {
-    // Add units
-    await db.units.bulkAdd(stage0Units);
-    console.log('✓ Added Stage 0 units');
-
-    // Add kana items
-    await db.items.bulkAdd(kanaItems);
-    console.log('✓ Added kana items');
-
+    // Drop stale kana rows from earlier seed versions
+    const keep = new Set(kanaItems.map((k) => k.id));
+    await db.items.where('type').equals('kana').filter((i: any) => !keep.has(i.id)).delete();
+    await db.units.bulkPut(stage0Units);
+    await db.items.bulkPut(kanaItems);
     return true;
   } catch (error) {
     console.error('Failed to seed kana data:', error);

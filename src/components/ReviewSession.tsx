@@ -13,10 +13,9 @@ export default function ReviewSession({ onComplete }: ReviewSessionProps) {
   if (isSessionComplete) {
     return (
       <div className="card p-8 text-center">
-        <div className="text-5xl mb-4">🎉</div>
-        <h2 className="text-2xl font-bold mb-2">Session Complete!</h2>
+        <h2 className="text-2xl font-bold mb-2">Session complete</h2>
         <p className="text-gray-600 mb-6">
-          You reviewed {progress.total} cards. Great work!
+          You reviewed {progress.total} cards. 
         </p>
         <button onClick={onComplete} className="btn-primary">
           Back to Home
@@ -52,7 +51,7 @@ export default function ReviewSession({ onComplete }: ReviewSessionProps) {
       <div className="space-y-4">
         <div className="card p-8 min-h-48 flex flex-col items-center justify-center space-y-6">
           <div className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-            {currentCard.cardType}
+            {currentCard.cardType === 'kana_reading' ? 'Read this kana' : 'Type the kana'}
           </div>
 
           {/* Display based on item type */}

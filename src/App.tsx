@@ -19,11 +19,7 @@ function App() {
     return <Loading />;
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-brand-50 to-white">
-      <Home />
-    </div>
-  );
+  return <Home />;
 }
 
 export default App;

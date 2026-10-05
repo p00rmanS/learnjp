@@ -1,0 +1,6 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "michi", "runtimeExecutable": "npx", "runtimeArgs": ["vite", "--port", "5199", "--strictPort", "--open", "false"], "port": 5199 }
+  ]
+}

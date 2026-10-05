@@ -86,7 +86,6 @@ export const useFSRSStore = create<FSRSStore>((set, get) => ({
         currentCardIndex: Math.min(currentCardIndex, updated.length - 1),
       });
 
-      console.log(`✓ Card ${cardId} scheduled for ${newFSRSState.due.toLocaleDateString()}`);
     } catch (error) {
       console.error('Failed to record review:', error);
     }
