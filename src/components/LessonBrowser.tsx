@@ -2,10 +2,11 @@ import { useCallback, useEffect, useState } from 'react';
 import { db } from '@/db';
 import { useUserStore } from '@/stores/userStore';
 import KanaLesson from './KanaLesson';
+import ConceptLessons from './ConceptLessons';
 import { kanaItems } from '@/db/seeds/kana';
 import type { Unit, KanaItem } from '@/types';
 
-type Script = 'hiragana' | 'katakana';
+type Script = 'hiragana' | 'katakana' | 'concepts';
 
 // Teaching order follows the seed file, not the database's id ordering
 const SEED_ORDER = new Map(kanaItems.map((k, i) => [k.id, i]));
@@ -123,6 +124,7 @@ export default function LessonBrowser() {
 
   // ---- Unit list ----
   const visible = units.filter((u) => (script === 'hiragana' ? u.order <= 6 : u.order > 6));
+  const showConcepts = script === 'concepts';
 
   return (
     <div className="space-y-6">
@@ -132,7 +134,7 @@ export default function LessonBrowser() {
       </div>
 
       <div className="inline-flex p-1 bg-stone-200/70 rounded-lg" role="tablist">
-        {(['hiragana', 'katakana'] as Script[]).map((s) => (
+        {(['hiragana', 'katakana', 'concepts'] as Script[]).map((s) => (
           <button
             key={s}
             role="tab"
@@ -142,14 +144,16 @@ export default function LessonBrowser() {
               script === s ? 'bg-white shadow-sm text-ink' : 'text-stone-600'
             }`}
           >
-            <span className="jp-text mr-1.5">{s === 'hiragana' ? 'あ' : 'ア'}</span>
+            {s !== 'concepts' && <span className="jp-text mr-1.5">{s === 'hiragana' ? 'あ' : 'ア'}</span>}
             {s}
           </button>
         ))}
       </div>
 
+      {showConcepts && <ConceptLessons />}
+
       <ul className="space-y-3">
-        {visible.map((unit, n) => {
+        {!showConcepts && visible.map((unit, n) => {
           const list = kanaByUnit[unit.id] ?? [];
           const done = list.filter((k) => learnedIds.has(k.id)).length;
           return (
@@ -184,7 +188,7 @@ export default function LessonBrowser() {
         })}
       </ul>
 
-      {visible.length === 0 && (
+      {!showConcepts && visible.length === 0 && (
         <div className="card p-6 text-center text-stone-500">No lessons found. Try reloading the page.</div>
       )}
     </div>

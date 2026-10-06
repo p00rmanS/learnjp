@@ -48,6 +48,10 @@ export interface KanaItem extends BaseItem {
   pronunciation: string;
   strokeCount: number;
   mnemonic?: string;
+  /** Taglish explanation of the sound and how to say it */
+  taglish?: string;
+  /** One practical tip (look-alikes, writing order, usage) */
+  tip?: string;
   audioUrl?: string;
 }
 

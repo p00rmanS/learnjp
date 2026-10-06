@@ -97,9 +97,7 @@ export async function initializeDatabase() {
   }
 
   // Seed kana outside the levels check so older/partial databases get repaired
-  const { seedKanaData, kanaItems } = await import('./seeds/kana');
-  const kanaCount = await db.items.where('type').equals('kana').count();
-  if (kanaCount !== kanaItems.length) {
-    await seedKanaData(db);
-  }
+  // Always upsert: cheap (142 rows) and keeps lesson content up to date
+  const { seedKanaData } = await import('./seeds/kana');
+  await seedKanaData(db);
 }

@@ -1,4 +1,5 @@
 import type { KanaItem, Unit } from '@/types';
+import { hiraganaContent, katakanaContent, voicedHiragana, voicedKatakana } from './kanaContent';
 
 // Stage 0 Units structure (12 units total: 6 hiragana + 6 katakana)
 export const stage0Units: Unit[] = [
@@ -127,11 +128,49 @@ const katakanaItems: KanaItem[] = hiraganaItems.map((h) => {
     id: h.id.replace('kana-', 'kata-'),
     unitId: `stage0-u${unitNo}`,
     character: h.katakana,
-    mnemonic: `Katakana ${h.katakana} — same sound as hiragana ${h.hiragana}`,
   };
 });
 
-export const kanaItems: KanaItem[] = [...hiraganaItems, ...katakanaItems];
+const HIRA_STROKES: Record<string, number> = {
+  a: 3, i: 2, u: 2, e: 2, o: 3, ka: 3, ki: 4, ku: 1, ke: 3, ko: 2, sa: 3, si: 1, su: 2, se: 3, so: 1,
+  ta: 4, ti: 2, tu: 1, te: 1, to: 2, na: 4, ni: 3, nu: 2, ne: 2, no: 1, ha: 3, hi: 1, hu: 4, he: 1, ho: 4,
+  ma: 3, mi: 2, mu: 3, me: 2, mo: 3, ya: 3, yu: 2, yo: 2, ra: 2, ri: 2, ru: 1, re: 2, ro: 1, wa: 2, wo: 3, n: 1,
+};
+const KATA_STROKES: Record<string, number> = {
+  a: 2, i: 2, u: 3, e: 3, o: 3, ka: 2, ki: 3, ku: 2, ke: 3, ko: 2, sa: 3, si: 3, su: 2, se: 2, so: 2,
+  ta: 3, ti: 3, tu: 3, te: 3, to: 2, na: 2, ni: 2, nu: 2, ne: 4, no: 1, ha: 2, hi: 2, hu: 1, he: 1, ho: 4,
+  ma: 2, mi: 3, mu: 2, me: 2, mo: 3, ya: 2, yu: 2, yo: 3, ra: 2, ri: 2, ru: 2, re: 1, ro: 3, wa: 2, wo: 3, n: 2,
+};
+// Voiced rows: base kana plus dakuten (2 strokes) or handakuten (1 stroke)
+const VOICED_BASE: Record<string, string> = {
+  ga: 'ka', gi: 'ki', gu: 'ku', ge: 'ke', go: 'ko', za: 'sa', zi: 'si', zu: 'su', ze: 'se', zo: 'so',
+  da: 'ta', di: 'ti', du: 'tu', de: 'te', do: 'to', ba: 'ha', bi: 'hi', bu: 'hu', be: 'he', bo: 'ho',
+  pa: 'ha', pi: 'hi', pu: 'hu', pe: 'he', po: 'ho',
+};
+
+function strokesFor(key: string, katakana: boolean): number | undefined {
+  const t = katakana ? KATA_STROKES : HIRA_STROKES;
+  if (t[key] !== undefined) return t[key];
+  const base = VOICED_BASE[key];
+  if (!base) return undefined;
+  return t[base] + (key.startsWith('p') ? 1 : 2);
+}
+
+function withContent(item: KanaItem, isKatakana: boolean): KanaItem {
+  const key = item.id.replace(/^(kana|kata)-/, '');
+  const table = isKatakana
+    ? { ...katakanaContent, ...voicedKatakana }
+    : { ...hiraganaContent, ...voicedHiragana };
+  const strokeCount = strokesFor(key, isKatakana) ?? item.strokeCount;
+  const c = table[key];
+  if (!c) return { ...item, strokeCount };
+  return { ...item, strokeCount, mnemonic: c.m, taglish: c.t, tip: c.p };
+}
+
+export const kanaItems: KanaItem[] = [
+  ...hiraganaItems.map((i) => withContent(i, false)),
+  ...katakanaItems.map((i) => withContent(i, true)),
+];
 
 // Idempotent: safe to run on every start, repairs partially seeded databases.
 export async function seedKanaData(db: any) {

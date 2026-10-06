@@ -46,10 +46,21 @@ export default function KanaLesson({ kana, learned, onLearned }: KanaLessonProps
       <div className="mt-4 text-3xl font-semibold">{kana.romaji}</div>
       <p className="text-stone-500 mt-1">sounds like &ldquo;{kana.pronunciation}&rdquo;</p>
 
+      {kana.taglish && (
+        <p className="mt-6 mx-auto max-w-md text-stone-700 leading-relaxed">{kana.taglish}</p>
+      )}
+
       {kana.mnemonic && (
-        <div className="mt-8 mx-auto max-w-md border-l-2 border-vermilion pl-4 text-left">
-          <p className="label mb-1">Memory hook</p>
+        <div className="mt-6 mx-auto max-w-md border-l-2 border-vermilion pl-4 text-left">
+          <p className="label mb-1">Paano tandaan</p>
           <p className="text-stone-800">{kana.mnemonic}</p>
+        </div>
+      )}
+
+      {kana.tip && (
+        <div className="mt-4 mx-auto max-w-md rounded-xl bg-brand-50 border border-brand-100 p-4 text-left">
+          <p className="label mb-1 text-brand-700">Pro tip</p>
+          <p className="text-stone-800">{kana.tip}</p>
         </div>
       )}
 
