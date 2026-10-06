@@ -3,6 +3,8 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 
 export default defineConfig({
+  // GitHub Pages serves the site from /learnjp/
+  base: '/learnjp/',
   plugins: [react()],
   resolve: {
     alias: {
@@ -11,7 +13,6 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    open: true,
   },
   build: {
     outDir: 'dist',

@@ -35,3 +35,6 @@ coverage
 .cache
 .turbo
 dist-ssr
+
+# Local Claude settings
+.claude/settings.local.json
