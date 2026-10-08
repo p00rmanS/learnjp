@@ -14,6 +14,10 @@ export interface ConceptLesson {
   examples?: ConceptExample[];
   remember: string;
   tip: string;
+  /** Grammar pattern shown under the title, e.g. "A は B です" */
+  pattern?: string;
+  /** One multiple-choice question at the end of the lesson */
+  check?: { q: string; options: string[]; answer: number };
 }
 
 export const conceptLessons: ConceptLesson[] = [

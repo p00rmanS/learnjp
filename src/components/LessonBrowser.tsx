@@ -4,11 +4,32 @@ import { useUserStore } from '@/stores/userStore';
 import KanaLesson from './KanaLesson';
 import ConceptLessons from './ConceptLessons';
 import UnitQuiz from './UnitQuiz';
+import { conceptLessons } from '@/db/seeds/concepts';
+import { n5Lessons, n4Lessons } from '@/db/seeds/grammarN5N4';
+import { n3Lessons, n2Lessons, n1Lessons } from '@/db/seeds/grammarN3N1';
 import { kanaItems } from '@/db/seeds/kana';
 import { HIRAGANA_UNIT_ORDERS } from '@/db/seeds/yoon';
 import type { Unit, KanaItem } from '@/types';
 
-type Script = 'hiragana' | 'katakana' | 'concepts';
+type Script = 'hiragana' | 'katakana' | 'concepts' | 'n5' | 'n4' | 'n3' | 'n2' | 'n1';
+
+const LEVELS = {
+  n5: { lessons: n5Lessons, intro: 'N5: ang mga batayan. Greetings, です, particles, pandiwa at adjective.' },
+  n4: { lessons: n4Lessons, intro: 'N4: mga anyo ng pandiwa, karanasan, pahintulot, dahilan at kondisyon.' },
+  n3: { lessons: n3Lessons, intro: 'N3: passive, causative at mga salitang nag-uugnay ng lohika.' },
+  n2: { lessons: n2Lessons, intro: 'N2: pormal na pananalita at mga pattern sa balita at ulat.' },
+  n1: { lessons: n1Lessons, intro: 'N1: mga pattern na literary at abstract.' },
+} as const;
+type LevelKey = keyof typeof LEVELS;
+
+const SCRIPT_TABS: Script[] = ['hiragana', 'katakana', 'concepts', 'n5', 'n4', 'n3', 'n2', 'n1'];
+
+function tabLabel(s: Script): string {
+  if (s === 'hiragana') return 'Hiragana';
+  if (s === 'katakana') return 'Katakana';
+  if (s === 'concepts') return 'Concepts';
+  return s.toUpperCase();
+}
 
 // Teaching order follows the seed file, not the database's id ordering
 const SEED_ORDER = new Map(kanaItems.map((k, i) => [k.id, i]));
@@ -147,35 +168,51 @@ export default function LessonBrowser() {
   // ---- Unit list ----
   const visible = units.filter((u) => HIRAGANA_UNIT_ORDERS.includes(u.order) === (script === 'hiragana'));
   const showConcepts = script === 'concepts';
+  const level = script in LEVELS ? LEVELS[script as LevelKey] : null;
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">Kana</h1>
-        <p className="text-stone-500 mt-1">Learn the two Japanese syllabaries, one small set at a time.</p>
+        <h1 className="text-2xl font-semibold">Lessons</h1>
+        <p className="text-stone-500 mt-1">Kana first, then grammar from N5 to N1.</p>
       </div>
 
-      <div className="inline-flex p-1 bg-stone-200/70 rounded-lg" role="tablist">
-        {(['hiragana', 'katakana', 'concepts'] as Script[]).map((s) => (
+      <div className="flex p-1 bg-stone-200/70 rounded-lg overflow-x-auto max-w-full w-fit" role="tablist">
+        {SCRIPT_TABS.map((s) => (
           <button
             key={s}
             role="tab"
             aria-selected={script === s}
             onClick={() => setScript(s)}
-            className={`px-4 py-1.5 rounded-md text-sm font-medium capitalize transition-colors ${
+            className={`px-3 sm:px-4 py-1.5 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${
               script === s ? 'bg-white shadow-sm text-ink' : 'text-stone-600'
             }`}
           >
-            {s !== 'concepts' && <span className="jp-text mr-1.5">{s === 'hiragana' ? 'あ' : 'ア'}</span>}
-            {s}
+            {(s === 'hiragana' || s === 'katakana') && <span className="jp-text mr-1.5">{s === 'hiragana' ? 'あ' : 'ア'}</span>}
+            {tabLabel(s)}
           </button>
         ))}
       </div>
 
-      {showConcepts && <ConceptLessons />}
+      {showConcepts && (
+        <ConceptLessons
+          lessons={conceptLessons}
+          storageKey="michi-concepts-read"
+          intro="Short lessons on how Japanese works. Basahin habang nag-aaral ng kana."
+        />
+      )}
+      {level && (
+        <ConceptLessons
+          key={script}
+          lessons={level.lessons}
+          storageKey={`michi-${script}-read`}
+          intro={level.intro}
+          noun="Lesson"
+        />
+      )}
 
       <ul className="space-y-3">
-        {!showConcepts && visible.map((unit, n) => {
+        {!showConcepts && !level && visible.map((unit, n) => {
           const list = kanaByUnit[unit.id] ?? [];
           const done = list.filter((k) => learnedIds.has(k.id)).length;
           return (
@@ -210,7 +247,7 @@ export default function LessonBrowser() {
         })}
       </ul>
 
-      {!showConcepts && visible.length === 0 && (
+      {!showConcepts && !level && visible.length === 0 && (
         <div className="card p-6 text-center text-stone-500">No lessons found. Try reloading the page.</div>
       )}
     </div>
