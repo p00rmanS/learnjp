@@ -3,7 +3,9 @@ import { db } from '@/db';
 import { useUserStore } from '@/stores/userStore';
 import KanaLesson from './KanaLesson';
 import ConceptLessons from './ConceptLessons';
+import UnitQuiz from './UnitQuiz';
 import { kanaItems } from '@/db/seeds/kana';
+import { HIRAGANA_UNIT_ORDERS } from '@/db/seeds/yoon';
 import type { Unit, KanaItem } from '@/types';
 
 type Script = 'hiragana' | 'katakana' | 'concepts';
@@ -19,6 +21,7 @@ export default function LessonBrowser() {
   const [learnedIds, setLearnedIds] = useState<Set<string>>(new Set());
   const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
   const [index, setIndex] = useState(0);
+  const [quizzing, setQuizzing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   const load = useCallback(async () => {
@@ -52,6 +55,25 @@ export default function LessonBrowser() {
   }
 
   const selectedUnit = units.find((u) => u.id === selectedUnitId);
+
+  // ---- Quick check at the end of a unit ----
+  if (selectedUnit && quizzing) {
+    const isHira = HIRAGANA_UNIT_ORDERS.includes(selectedUnit.order);
+    const pool = units
+      .filter((u) => HIRAGANA_UNIT_ORDERS.includes(u.order) === isHira)
+      .flatMap((u) => kanaByUnit[u.id] ?? []);
+    return (
+      <UnitQuiz
+        unitTitle={selectedUnit.title}
+        items={kanaByUnit[selectedUnit.id] ?? []}
+        pool={pool}
+        onDone={() => {
+          setQuizzing(false);
+          setSelectedUnitId(null);
+        }}
+      />
+    );
+  }
 
   // ---- Single kana lesson ----
   if (selectedUnit) {
@@ -109,8 +131,8 @@ export default function LessonBrowser() {
             Previous
           </button>
           {isLast ? (
-            <button onClick={() => setSelectedUnitId(null)} className="btn-primary flex-1">
-              Finish unit
+            <button onClick={() => setQuizzing(true)} className="btn-primary flex-1">
+              Take quick check
             </button>
           ) : (
             <button onClick={() => setIndex(index + 1)} className="btn-secondary flex-1">
@@ -123,7 +145,7 @@ export default function LessonBrowser() {
   }
 
   // ---- Unit list ----
-  const visible = units.filter((u) => (script === 'hiragana' ? u.order <= 6 : u.order > 6));
+  const visible = units.filter((u) => HIRAGANA_UNIT_ORDERS.includes(u.order) === (script === 'hiragana'));
   const showConcepts = script === 'concepts';
 
   return (

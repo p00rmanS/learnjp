@@ -64,7 +64,9 @@ export default function KanaLesson({ kana, learned, onLearned }: KanaLessonProps
         </div>
       )}
 
-      <p className="mt-6 text-sm text-stone-500">{kana.strokeCount} stroke{kana.strokeCount === 1 ? '' : 's'}</p>
+      {kana.strokeCount > 0 && (
+        <p className="mt-6 text-sm text-stone-500">{kana.strokeCount} stroke{kana.strokeCount === 1 ? '' : 's'}</p>
+      )}
 
       {error && <p className="mt-4 text-sm text-red-700">{error}</p>}
 

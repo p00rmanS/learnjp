@@ -1,4 +1,5 @@
 import type { KanaItem, Unit } from '@/types';
+import { hiraganaYoon, katakanaYoon, yoonUnits } from './yoon';
 import { hiraganaContent, katakanaContent, voicedHiragana, voicedKatakana } from './kanaContent';
 
 // Stage 0 Units structure (12 units total: 6 hiragana + 6 katakana)
@@ -170,6 +171,8 @@ function withContent(item: KanaItem, isKatakana: boolean): KanaItem {
 export const kanaItems: KanaItem[] = [
   ...hiraganaItems.map((i) => withContent(i, false)),
   ...katakanaItems.map((i) => withContent(i, true)),
+  ...hiraganaYoon,
+  ...katakanaYoon,
 ];
 
 // Idempotent: safe to run on every start, repairs partially seeded databases.
@@ -178,7 +181,7 @@ export async function seedKanaData(db: any) {
     // Drop stale kana rows from earlier seed versions
     const keep = new Set(kanaItems.map((k) => k.id));
     await db.items.where('type').equals('kana').filter((i: any) => !keep.has(i.id)).delete();
-    await db.units.bulkPut(stage0Units);
+    await db.units.bulkPut([...stage0Units, ...yoonUnits]);
     await db.items.bulkPut(kanaItems);
     return true;
   } catch (error) {
