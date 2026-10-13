@@ -73,7 +73,7 @@ export default function KanaInput({ correctAnswer, cardType, onAnswer, disabled 
         <div className="space-y-2">
           <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-center gap-2">
             <span className="text-2xl">❌</span>
-            <span className="text-red-700 font-medium">Not quite. Try again!</span>
+            <span className="text-red-700 font-medium">Not quite. Here's the answer:</span>
           </div>
 
           {showAnswer && (
@@ -96,11 +96,6 @@ export default function KanaInput({ correctAnswer, cardType, onAnswer, disabled 
         </button>
       )}
 
-      {feedbackType && (
-        <p className="text-sm text-gray-500 text-center">
-          Select a rating (Good/Hard/etc.) to continue.
-        </p>
-      )}
     </div>
   );
 }

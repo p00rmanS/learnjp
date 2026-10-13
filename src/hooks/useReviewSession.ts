@@ -1,70 +1,49 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useFSRSStore } from '@/stores/fsrsStore';
-import { useUserStore } from '@/stores/userStore';
 import { db } from '@/db';
 import type { Item } from '@/types';
 
+type Rating = 1 | 2 | 3 | 4;
+
 export function useReviewSession() {
-  const fsrsStore = useFSRSStore();
-  const { user } = useUserStore();
+  const { dueCards, stats, sessionTotal, reviewedCount, isLoading } = useFSRSStore();
+  const currentCard = dueCards[0];
   const [currentItem, setCurrentItem] = useState<Item | null>(null);
-  const startTimeRef = useRef<number>(Date.now());
+  const startedAtRef = useRef(Date.now());
 
   useEffect(() => {
-    if (user && fsrsStore.dueCards.length === 0) {
-      fsrsStore.loadDueCards(user.id);
-    }
-  }, [user, fsrsStore]);
-
-  useEffect(() => {
-    loadCurrentItem();
-  }, [fsrsStore.currentCardIndex]);
-
-  async function loadCurrentItem() {
-    const card = fsrsStore.dueCards[fsrsStore.currentCardIndex];
-    if (!card) {
+    startedAtRef.current = Date.now();
+    if (!currentCard) {
       setCurrentItem(null);
       return;
     }
+    let cancelled = false;
+    db.items.get(currentCard.itemId).then((item) => {
+      if (!cancelled) setCurrentItem(item ?? null);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [currentCard?.id]);
 
-    try {
-      const item = await db.items.get(card.itemId);
-      setCurrentItem(item || null);
-    } catch (error) {
-      console.error('Failed to load item:', error);
-      setCurrentItem(null);
-    }
-  }
-
-  function handleReview(rating: 1 | 2 | 3 | 4) {
-    const card = fsrsStore.dueCards[fsrsStore.currentCardIndex];
+  function handleReview(rating: Rating) {
+    const card = useFSRSStore.getState().dueCards[0];
     if (!card) return;
-
-    const elapsed = Date.now() - startTimeRef.current;
-    fsrsStore.recordReview(card.id, rating, elapsed);
-
-    if (fsrsStore.currentCardIndex < fsrsStore.dueCards.length - 1) {
-      fsrsStore.nextCard();
-      startTimeRef.current = Date.now();
-    }
+    void useFSRSStore.getState().recordReview(card.id, rating, Date.now() - startedAtRef.current);
   }
-
-  const currentCard = fsrsStore.dueCards[fsrsStore.currentCardIndex];
-  const progress = {
-    current: fsrsStore.currentCardIndex + 1,
-    total: fsrsStore.dueCards.length,
-    percent: fsrsStore.dueCards.length > 0 ? ((fsrsStore.currentCardIndex + 1) / fsrsStore.dueCards.length) * 100 : 0,
-  };
 
   return {
     currentItem,
     currentCard,
-    progress,
-    stats: fsrsStore.stats,
-    isLoading: fsrsStore.isLoading,
-    isSessionComplete: fsrsStore.dueCards.length === 0 || fsrsStore.currentCardIndex >= fsrsStore.dueCards.length,
+    progress: {
+      current: Math.min(reviewedCount + 1, sessionTotal),
+      total: sessionTotal,
+      percent: sessionTotal > 0 ? (reviewedCount / sessionTotal) * 100 : 0,
+    },
+    reviewed: reviewedCount,
+    stats,
+    isLoading,
+    isSessionComplete: dueCards.length === 0,
     handleReview,
-    previousCard: () => fsrsStore.previousCard(),
-    nextCard: () => fsrsStore.nextCard(),
   };
 }

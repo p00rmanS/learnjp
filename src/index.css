@@ -3,70 +3,103 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
-    @apply bg-white text-gray-900 font-sans;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    @apply bg-paper text-ink font-ui antialiased;
+    background-image: radial-gradient(circle at 1px 1px, rgba(28, 31, 43, 0.05) 1px, transparent 0);
+    background-size: 22px 22px;
   }
 
-  h1 {
-    @apply text-3xl font-bold;
+  ::selection {
+    @apply bg-ai-100 text-ai-800;
   }
 
-  h2 {
-    @apply text-2xl font-bold;
-  }
-
-  h3 {
-    @apply text-xl font-semibold;
+  :focus-visible {
+    @apply outline-none ring-2 ring-ai-500 ring-offset-2 ring-offset-paper;
   }
 }
 
 @layer components {
-  .btn-primary {
-    @apply px-4 py-2 bg-brand-600 text-white rounded-lg font-semibold hover:bg-brand-700 transition-colors;
+  .eyebrow {
+    @apply text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-3;
   }
 
-  .btn-secondary {
-    @apply px-4 py-2 bg-gray-200 text-gray-900 rounded-lg font-semibold hover:bg-gray-300 transition-colors;
+  .display {
+    @apply font-display font-semibold tracking-tight text-ink;
+  }
+
+  .surface {
+    @apply rounded-2xl bg-paper-card ring-1 ring-ink-line shadow-card;
+  }
+
+  .btn-ink {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-ai-700 px-6 py-3 text-[15px] font-semibold text-paper-card shadow-card transition duration-200 hover:bg-ai-800 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-quiet {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-[15px] font-medium text-ink-2 ring-1 ring-ink-line transition duration-200 hover:bg-paper-deep hover:text-ink disabled:opacity-50;
   }
 
   .card {
-    @apply bg-white border border-gray-200 rounded-lg shadow-sm;
+    @apply surface;
+  }
+
+  .btn-primary {
+    @apply btn-ink;
+  }
+
+  .btn-secondary {
+    @apply btn-quiet;
+  }
+
+  .link-back {
+    @apply inline-flex items-center gap-2 text-sm font-medium text-ink-2 transition hover:text-ai-600;
+  }
+
+  .hanko {
+    @apply inline-flex items-center justify-center rounded-[6px] bg-shu-500 font-display font-bold text-paper-card shadow-[inset_0_0_0_2px_rgba(255,255,255,0.12)];
   }
 
   .jp-text {
     @apply font-jp;
   }
+
+  .rule {
+    @apply h-px w-full bg-ink-line;
+  }
 }
 
-/* Furigana styling */
 ruby {
-  @apply jp-text;
+  @apply font-jp;
 }
 
 rt {
-  @apply text-xs font-light jp-text;
-  display: ruby;
+  @apply text-xs font-light;
 }
 
-/* Japanese input IME styling */
-.ime-input {
-  @apply border-2 border-blue-500 rounded px-2 py-1;
-}
-
-/* Loading skeleton */
-@keyframes shimmer {
-  0% {
-    background-position: -1000px 0;
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
   }
-  100% {
-    background-position: 1000px 0;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-.skeleton {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 1000px 100%;
-  animation: shimmer 2s infinite;
+.animate-rise {
+  animation: rise 520ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
 }

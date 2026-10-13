@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useUserStore } from '@/stores/userStore';
-import { db } from '@/db';
-import { initializeCard } from '@/services/fsrsService';
+import { addItemsToReview } from '@/services/cards';
 import type { KanaItem } from '@/types';
 
 interface KanaLessonProps {
@@ -21,22 +20,8 @@ export default function KanaLesson({ kana, onLearned }: KanaLessonProps) {
     setError(null);
 
     try {
-      const cardTypes = [
-        { type: 'kana_reading', prompt: `What is the romaji for ${kana.character}?` },
-        { type: 'vocab_recall_typed', prompt: `Type the hiragana for "${kana.romaji}"` },
-      ];
-
-      const cardsToAdd = cardTypes.map((ct) => ({
-        id: `card-${kana.id}-${ct.type}-${Date.now()}`,
-        userId: user.id,
-        itemId: kana.id,
-        cardType: ct.type as any,
-        fsrsState: initializeCard(),
-        createdAt: new Date(),
-      }));
-
-      await db.cards.bulkAdd(cardsToAdd);
-      console.log(`✓ Created ${cardsToAdd.length} cards for ${kana.character}`);
+      await addItemsToReview(user.id, [kana], 'kana_reading');
+      await addItemsToReview(user.id, [kana], 'vocab_recall_typed');
       onLearned();
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to create cards';

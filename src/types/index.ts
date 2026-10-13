@@ -68,6 +68,7 @@ export interface VocabItem extends BaseItem {
   type: 'vocab';
   kana: string;
   kanji?: string;
+  romaji: string;
   meanings: string[];
   partOfSpeech: string;
   mnemonic?: string;

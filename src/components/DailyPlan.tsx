@@ -1,12 +1,8 @@
 interface DailyPlanProps {
   stats: {
     total: number;
-    new: number;
-    learning: number;
-    review: number;
     estimatedMinutes: number;
   };
-  onStartReview?: () => void;
 }
 
 export default function DailyPlan({ stats }: DailyPlanProps) {

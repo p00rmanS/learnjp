@@ -1,114 +1,119 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { db } from '@/db';
 import KanaLesson from './KanaLesson';
-import type { Unit, KanaItem } from '@/types';
+import UnitLesson from './UnitLesson';
+import type { Item, KanaItem, Level, Unit } from '@/types';
 
 interface LessonBrowserProps {
   onBack: () => void;
-  onLessonStart: (unitId: string) => void;
 }
 
-export default function LessonBrowser({ onBack, onLessonStart }: LessonBrowserProps) {
-  const [units, setUnits] = useState<Unit[]>([]);
-  const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
-  const [unitKana, setUnitKana] = useState<KanaItem[]>([]);
-  const [currentKanaIndex, setCurrentKanaIndex] = useState(0);
+interface UnitSummary extends Unit {
+  count: number;
+}
+
+const UNIT_GLYPHS: Record<string, string> = {
+  'n5-greetings': '挨',
+  'n5-daily': '話',
+  'n5-fillers': '間',
+  'n5-restaurant': '食',
+  'n5-shopping': '買',
+  'n5-directions': '道',
+  'n5-numbers': '数',
+  'n5-time': '時',
+  'n5-food': '飲',
+  'n5-transport': '車',
+  'n5-help': '助',
+  'n5-family': '家',
+  'n5-verbs': '動',
+  'n5-grammar': '文',
+  'n5-grammar-2': '法',
+};
+
+export default function LessonBrowser({ onBack }: LessonBrowserProps) {
+  const [levels, setLevels] = useState<Level[]>([]);
+  const [units, setUnits] = useState<UnitSummary[]>([]);
+  const [selected, setSelected] = useState<UnitSummary | null>(null);
+  const [items, setItems] = useState<Item[]>([]);
+  const [kanaIndex, setKanaIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    loadUnits();
+    (async () => {
+      const [allLevels, allUnits] = await Promise.all([db.levels.toArray(), db.units.toArray()]);
+      const summaries = await Promise.all(
+        allUnits.map(async (unit) => ({
+          ...unit,
+          count: await db.items.where('unitId').equals(unit.id).count(),
+        })),
+      );
+      setLevels(allLevels.sort((a, b) => a.order - b.order));
+      setUnits(summaries);
+      setIsLoading(false);
+    })().catch((error) => {
+      console.error('Failed to load lessons:', error);
+      setIsLoading(false);
+    });
   }, []);
 
-  async function loadUnits() {
-    try {
-      const stage0Units = await db.units.where('levelId').equals('stage0').toArray();
-      setUnits(stage0Units.sort((a, b) => a.order - b.order));
-      setIsLoading(false);
-    } catch (error) {
-      console.error('Failed to load units:', error);
-      setIsLoading(false);
-    }
-  }
+  const grouped = useMemo(
+    () =>
+      levels
+        .map((level) => ({
+          level,
+          units: units.filter((u) => u.levelId === level.id).sort((a, b) => a.order - b.order),
+        }))
+        .filter((group) => group.units.length > 0),
+    [levels, units],
+  );
 
-  async function selectUnit(unit: Unit) {
-    setSelectedUnit(unit);
-    try {
-      const kana = await db.items
-        .where('unitId')
-        .equals(unit.id)
-        .filter((item) => item.type === 'kana')
-        .toArray();
-      setUnitKana(kana as KanaItem[]);
-      setCurrentKanaIndex(0);
-      onLessonStart(unit.id);
-    } catch (error) {
-      console.error('Failed to load unit kana:', error);
-    }
+  async function openUnit(unit: UnitSummary) {
+    const unitItems = (await db.items.where('unitId').equals(unit.id).toArray()).sort(
+      (a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
+    );
+    setItems(unitItems);
+    setKanaIndex(0);
+    setSelected(unit);
   }
 
   if (isLoading) {
-    return (
-      <div className="card p-6 text-center">
-        <p className="text-gray-600">Loading lessons...</p>
-      </div>
-    );
+    return <div className="card p-6 text-center text-gray-500">Loading lessons…</div>;
   }
 
-  // Lesson view (showing kana from selected unit)
-  if (selectedUnit && unitKana.length > 0) {
-    const currentKana = unitKana[currentKanaIndex] as KanaItem;
-    const isLastKana = currentKanaIndex === unitKana.length - 1;
+  if (selected && selected.levelId !== 'stage0') {
+    return <UnitLesson unit={selected} items={items} onBack={() => setSelected(null)} />;
+  }
+
+  if (selected) {
+    const kana = items as KanaItem[];
+    const current = kana[kanaIndex];
+    const isLast = kanaIndex === kana.length - 1;
+    const finish = () => setSelected(null);
 
     return (
       <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <button onClick={() => setSelectedUnit(null)} className="text-brand-600 hover:underline">
-            ← Back to Units
+        <div className="flex items-center justify-between">
+          <button onClick={finish} className="text-sm font-medium text-indigo-600 hover:text-indigo-800">
+            ← All lessons
           </button>
-          <div className="text-sm text-gray-600">
-            {currentKanaIndex + 1} / {unitKana.length}
-          </div>
+          <span className="text-sm text-gray-600">
+            {kanaIndex + 1} / {kana.length}
+          </span>
         </div>
 
-        <KanaLesson
-          kana={currentKana}
-          onLearned={() => {
-            if (isLastKana) {
-              // Unit complete
-              setSelectedUnit(null);
-              setCurrentKanaIndex(0);
-            } else {
-              setCurrentKanaIndex(currentKanaIndex + 1);
-            }
-          }}
-        />
+        {current && (
+          <KanaLesson kana={current} onLearned={() => (isLast ? finish() : setKanaIndex(kanaIndex + 1))} />
+        )}
 
         <div className="flex gap-2">
-          {currentKanaIndex > 0 && (
-            <button
-              onClick={() => setCurrentKanaIndex(currentKanaIndex - 1)}
-              className="btn-secondary flex-1"
-            >
+          {kanaIndex > 0 && (
+            <button onClick={() => setKanaIndex(kanaIndex - 1)} className="btn-secondary flex-1">
               ← Previous
             </button>
           )}
-          {!isLastKana && (
-            <button
-              onClick={() => setCurrentKanaIndex(currentKanaIndex + 1)}
-              className="btn-secondary flex-1"
-            >
+          {!isLast && (
+            <button onClick={() => setKanaIndex(kanaIndex + 1)} className="btn-secondary flex-1">
               Skip →
-            </button>
-          )}
-          {isLastKana && (
-            <button
-              onClick={() => {
-                setSelectedUnit(null);
-                setCurrentKanaIndex(0);
-              }}
-              className="btn-primary flex-1"
-            >
-              ✅ Unit Complete
             </button>
           )}
         </div>
@@ -116,32 +121,46 @@ export default function LessonBrowser({ onBack, onLessonStart }: LessonBrowserPr
     );
   }
 
-  // Unit selection view
   return (
-    <div className="space-y-4">
-      <button onClick={onBack} className="mb-4 text-brand-600 hover:underline">
-        ← Back to Home
-      </button>
-
-      <h2 className="text-2xl font-bold mb-4">Stage 0: Kana Bootcamp</h2>
-      <p className="text-gray-600 mb-6">Master hiragana and katakana with spaced repetition.</p>
-
-      <div className="grid gap-3">
-        {units.map((unit) => (
-          <button
-            key={unit.id}
-            onClick={() => selectUnit(unit)}
-            className="card p-4 hover:shadow-md hover:border-brand-300 transition text-left border border-gray-200"
-          >
-            <h3 className="font-bold text-lg">{unit.title}</h3>
-            <p className="text-sm text-gray-600">{unit.theme}</p>
-          </button>
-        ))}
+    <div className="space-y-10">
+      <div>
+        <button onClick={onBack} className="text-sm font-medium text-indigo-600 hover:text-indigo-800">
+          ← Back to home
+        </button>
+        <h2 className="mt-4 text-3xl font-bold text-slate-900">Lessons</h2>
+        <p className="mt-2 text-slate-600">
+          Pick a unit, learn it, then add it to your reviews. Tap 🔊 to hear any phrase.
+        </p>
       </div>
 
-      {units.length === 0 && (
-        <div className="card p-6 text-center text-gray-600">No lessons available yet. Try reloading.</div>
-      )}
+      {grouped.map(({ level, units: levelUnits }) => (
+        <section key={level.id} className="space-y-4">
+          <div>
+            <h3 className="text-lg font-bold uppercase tracking-wide text-slate-500">{level.title}</h3>
+            <p className="text-sm text-slate-500">{level.description}</p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {levelUnits.map((unit) => (
+              <button
+                key={unit.id}
+                onClick={() => openUnit(unit)}
+                className="group flex items-start gap-4 rounded-2xl bg-white p-5 text-left shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-lg hover:ring-indigo-200"
+              >
+                <span className="jp-text flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-ai-50 font-display text-2xl font-semibold text-ai-700 ring-1 ring-ai-100">
+                  {UNIT_GLYPHS[unit.id] ?? '日'}
+                </span>
+                <span className="min-w-0">
+                  <span className="block font-bold text-slate-900 group-hover:text-indigo-700">{unit.title}</span>
+                  <span className="mt-1 block text-sm text-slate-600">{unit.theme}</span>
+                  <span className="mt-2 inline-block rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600">
+                    {unit.count} {unit.levelId === 'stage0' ? 'kana' : 'items'}
+                  </span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
+      ))}
     </div>
   );
 }

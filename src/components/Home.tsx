@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useUserStore } from '@/stores/userStore';
 import { useFSRSStore } from '@/stores/fsrsStore';
 import DailyPlan from './DailyPlan';
@@ -11,6 +11,10 @@ export default function Home() {
   const { user } = useUserStore();
   const { stats, loadDueCards } = useFSRSStore();
   const [screen, setScreen] = useState<Screen>('home');
+
+  useEffect(() => {
+    if (user && screen === 'home') loadDueCards(user.id);
+  }, [user, screen, loadDueCards]);
 
   async function startReview() {
     if (user) {
@@ -141,9 +145,7 @@ export default function Home() {
 
         {screen === 'review' && <ReviewSession onComplete={() => setScreen('home')} />}
 
-        {screen === 'lessons' && (
-          <LessonBrowser onBack={() => setScreen('home')} onLessonStart={() => setScreen('home')} />
-        )}
+        {screen === 'lessons' && <LessonBrowser onBack={() => setScreen('home')} />}
       </div>
     </div>
   );

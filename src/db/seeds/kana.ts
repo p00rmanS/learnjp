@@ -7,8 +7,8 @@ export const stage0Units: Unit[] = [
   { id: 'stage0-u2', levelId: 'stage0', order: 2, title: 'さ行・た行', theme: 'Hiragana Set 2: S & T rows' },
   { id: 'stage0-u3', levelId: 'stage0', order: 3, title: 'な行・は行', theme: 'Hiragana Set 3: N & H rows' },
   { id: 'stage0-u4', levelId: 'stage0', order: 4, title: 'ま行・や行・ら行・わ行', theme: 'Hiragana Set 4: Final rows' },
-  { id: 'stage0-u5', levelId: 'stage0', order: 5, title: 'ガギグゲゴ・ザジズゼゾ', theme: 'Hiragana Set 5a: Dakuten (G, Z)' },
-  { id: 'stage0-u6', levelId: 'stage0', order: 6, title: 'ダヂヅデド・バビブベボ・パピプペポ', theme: 'Hiragana Set 5b: Dakuten (D, B, P)' },
+  { id: 'stage0-u5', levelId: 'stage0', order: 5, title: 'がぎぐげご・ざじずぜぞ', theme: 'Hiragana Set 5a: Dakuten (G, Z)' },
+  { id: 'stage0-u6', levelId: 'stage0', order: 6, title: 'だぢづでど・ばびぶべぼ・ぱぴぷぺぽ', theme: 'Hiragana Set 5b: Dakuten (D, B, P)' },
   // Katakana (same structure)
   { id: 'stage0-u7', levelId: 'stage0', order: 7, title: 'ア行・カ行', theme: 'Katakana Set 1: Basic rows' },
   { id: 'stage0-u8', levelId: 'stage0', order: 8, title: 'サ行・タ行', theme: 'Katakana Set 2: S & T rows' },
@@ -126,6 +126,23 @@ export const kanaItems: KanaItem[] = [
   // Units 7-12 contain the exact same structure as units 1-6 but in katakana order
 ];
 
+const katakanaUnitIds: Record<string, string> = {
+  'stage0-u1': 'stage0-u7',
+  'stage0-u2': 'stage0-u8',
+  'stage0-u3': 'stage0-u9',
+  'stage0-u4': 'stage0-u10',
+  'stage0-u5': 'stage0-u11',
+  'stage0-u6': 'stage0-u12',
+};
+
+export const katakanaItems: KanaItem[] = kanaItems.map((kana) => ({
+  ...kana,
+  id: `${kana.id}-katakana`,
+  unitId: katakanaUnitIds[kana.unitId],
+  character: kana.katakana,
+  createdAt: new Date(),
+}));
+
 // Helper function to seed database
 export async function seedKanaData(db: any) {
   try {
@@ -134,7 +151,7 @@ export async function seedKanaData(db: any) {
     console.log('✓ Added Stage 0 units');
 
     // Add kana items
-    await db.items.bulkAdd(kanaItems);
+    await db.items.bulkAdd([...kanaItems, ...katakanaItems]);
     console.log('✓ Added kana items');
 
     return true;

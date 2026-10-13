@@ -48,6 +48,9 @@ export const db = new MichiDB();
 
 // Initialize default data (levels) on first load
 export async function initializeDatabase() {
+  const { seedLessonContent } = await import('./seeds/lessons');
+  await seedLessonContent(db);
+
   const count = await db.levels.count();
   if (count === 0) {
     await db.levels.bulkAdd([
