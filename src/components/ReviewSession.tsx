@@ -6,20 +6,20 @@ import type { Card, GrammarItem, Item, KanaItem, KanjiItem, VocabItem } from '@/
 
 type Rating = 1 | 2 | 3 | 4;
 
-const RATINGS: { value: Rating; label: string; hint: string; tone: string }[] = [
-  { value: 1, label: 'Again', hint: 'Forgot', tone: 'border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100' },
-  { value: 2, label: 'Hard', hint: 'Struggled', tone: 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100' },
-  { value: 3, label: 'Good', hint: 'Recalled', tone: 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100' },
-  { value: 4, label: 'Easy', hint: 'Instant', tone: 'border-sky-200 bg-sky-50 text-sky-700 hover:bg-sky-100' },
+const RATINGS: { value: Rating; label: string; hint: string }[] = [
+  { value: 1, label: 'Again', hint: 'I forgot' },
+  { value: 2, label: 'Hard', hint: 'I struggled' },
+  { value: 3, label: 'Good', hint: 'I got it' },
+  { value: 4, label: 'Easy', hint: 'Instantly' },
 ];
 
 const CARD_LABELS: Record<string, string> = {
   kana_reading: 'Read the kana',
   vocab_recall_typed: 'Type the kana',
-  vocab_meaning: 'Meaning',
+  vocab_meaning: 'Remember the meaning',
   kanji_meaning: 'Kanji',
   kanji_reading: 'Reading',
-  grammar_cloze: 'Grammar',
+  grammar_cloze: 'Grammar pattern',
 };
 
 interface ReviewSessionProps {
@@ -31,35 +31,39 @@ export default function ReviewSession({ onComplete }: ReviewSessionProps) {
 
   if (isSessionComplete) {
     return (
-      <div className="card p-10 text-center">
-        <div className="text-6xl mb-4">🎉</div>
-        <h2 className="text-3xl font-bold mb-2">Session complete</h2>
-        <p className="text-gray-600 mb-8">
-          You reviewed {reviewed} {reviewed === 1 ? 'card' : 'cards'}. Your next reviews are scheduled automatically.
+      <div className="animate-rise surface mx-auto max-w-xl p-10 text-center sm:p-14">
+        <span className="hanko mx-auto h-16 w-16 text-2xl" aria-hidden="true">
+          済
+        </span>
+        <h2 className="display mt-8 text-3xl">Session complete</h2>
+        <p className="mt-4 text-[15px] leading-relaxed text-ink-2">
+          You reviewed {reviewed} {reviewed === 1 ? 'card' : 'cards'}. Each one is scheduled for the moment you are
+          most likely to forget it.
         </p>
-        <button onClick={onComplete} className="btn-primary px-8 py-3 text-lg">
-          Back to home
+        <button onClick={onComplete} className="btn-ink mt-10">
+          Back to today
         </button>
       </div>
     );
   }
 
   if (!currentCard || !currentItem || currentItem.id !== currentCard.itemId) {
-    return <div className="card p-6 text-center text-gray-500">Loading card…</div>;
+    return <div className="surface p-10 text-center text-ink-3">Loading card…</div>;
   }
 
   return (
-    <div className="space-y-5">
-      <div className="card p-4">
-        <div className="mb-2 flex justify-between text-sm font-semibold text-gray-700">
-          <span>
-            Card {progress.current} of {progress.total}
+    <div className="mx-auto max-w-2xl space-y-6">
+      <div>
+        <div className="mb-3 flex items-center justify-between text-sm">
+          <span className="font-medium text-ink-2">
+            Card <span className="tabular-nums">{progress.current}</span> of{' '}
+            <span className="tabular-nums">{progress.total}</span>
           </span>
-          <span className="text-gray-500">{Math.round(progress.percent)}%</span>
+          <span className="tabular-nums text-ink-3">{Math.round(progress.percent)}%</span>
         </div>
-        <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-paper-deep">
           <div
-            className="h-2 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 transition-all duration-500"
+            className="h-full rounded-full bg-ai-600 transition-all duration-500 ease-out"
             style={{ width: `${progress.percent}%` }}
           />
         </div>
@@ -94,13 +98,10 @@ function ReviewCard({ card, item, onRate }: ReviewCardProps) {
 
   return (
     <div className="space-y-5">
-      <div className="relative flex min-h-[320px] flex-col items-center justify-center overflow-hidden rounded-3xl bg-white p-8 text-center shadow-xl ring-1 ring-slate-200 sm:p-12">
-        <span className="absolute left-5 top-5 text-xs font-semibold uppercase tracking-widest text-slate-400">
-          {CARD_LABELS[card.cardType] ?? card.cardType}
-        </span>
-
+      <section className="surface relative flex min-h-[300px] flex-col items-center justify-center overflow-hidden p-8 text-center sm:p-12">
+        <span className="eyebrow absolute left-6 top-6">{CARD_LABELS[card.cardType] ?? card.cardType}</span>
         <Prompt card={card} item={item} revealed={revealed} />
-      </div>
+      </section>
 
       {isKana && (
         <KanaInput
@@ -111,16 +112,13 @@ function ReviewCard({ card, item, onRate }: ReviewCardProps) {
       )}
 
       {isKana && kanaResult === 'correct' && (
-        <p className="text-center text-sm font-medium text-emerald-700">Correct. Moving to the next card…</p>
+        <p className="text-center text-sm text-matcha-500">Correct. Moving on…</p>
       )}
 
       {isKana && kanaResult === 'wrong' && <RatingRow onRate={onRate} />}
 
       {!isKana && !revealed && (
-        <button
-          onClick={() => setRevealed(true)}
-          className="w-full rounded-2xl bg-slate-900 py-4 text-lg font-semibold text-white transition hover:bg-slate-700"
-        >
+        <button onClick={() => setRevealed(true)} className="btn-ink w-full py-4 text-base">
           Show answer
         </button>
       )}
@@ -138,37 +136,34 @@ function ReviewCard({ card, item, onRate }: ReviewCardProps) {
 function Prompt({ card, item, revealed }: { card: Card; item: Item; revealed: boolean }) {
   if (item.type === 'kana') {
     if (card.cardType === 'vocab_recall_typed') {
-      return <div className="text-5xl font-bold text-slate-800">{item.romaji}</div>;
+      return <div className="display text-5xl">{item.romaji}</div>;
     }
-    return <div className="jp-text text-9xl font-bold text-slate-900">{item.character}</div>;
+    return <div className="jp-text text-8xl font-medium text-ink sm:text-9xl">{item.character}</div>;
   }
 
   if (item.type === 'vocab') {
     return (
-      <div className="space-y-3">
-        <div className="jp-text text-5xl font-bold text-slate-900 sm:text-6xl">{item.kana}</div>
-        {item.kanji && <div className="jp-text text-2xl text-slate-500">{item.kanji}</div>}
-        <button
-          onClick={() => speak(item.kana)}
-          className="mt-2 inline-flex items-center gap-2 rounded-full bg-indigo-50 px-4 py-2 text-sm font-semibold text-indigo-700 hover:bg-indigo-100"
-        >
-          🔊 Listen
+      <div className="space-y-4">
+        <div className="jp-text text-5xl font-medium text-ink sm:text-6xl">{item.kana}</div>
+        {item.kanji && <div className="jp-text text-xl text-ink-3">{item.kanji}</div>}
+        <button onClick={() => speak(item.kana)} className="btn-quiet mt-2 py-2 text-sm">
+          ▶ Listen
         </button>
         {revealed && (item as VocabItem).romaji && (
-          <div className="text-lg text-slate-500">{(item as VocabItem).romaji}</div>
+          <div className="pt-2 text-base italic text-ai-600">{(item as VocabItem).romaji}</div>
         )}
       </div>
     );
   }
 
   if (item.type === 'kanji') {
-    return <div className="jp-text text-9xl font-bold text-slate-900">{(item as KanjiItem).character}</div>;
+    return <div className="jp-text text-8xl font-medium text-ink sm:text-9xl">{(item as KanjiItem).character}</div>;
   }
 
   return (
-    <div className="max-w-xl space-y-3">
-      <h3 className="jp-text text-2xl font-bold text-slate-900 sm:text-3xl">{(item as GrammarItem).title}</h3>
-      <p className="text-sm text-slate-500">Recall what this pattern means and how to use it.</p>
+    <div className="max-w-xl space-y-4">
+      <h3 className="display text-2xl leading-snug sm:text-3xl">{(item as GrammarItem).title}</h3>
+      <p className="text-sm text-ink-3">Say what this pattern means, then check yourself.</p>
     </div>
   );
 }
@@ -176,16 +171,18 @@ function Prompt({ card, item, revealed }: { card: Card; item: Item; revealed: bo
 function Answer({ item }: { item: Item }) {
   if (item.type === 'vocab') {
     return (
-      <div className="rounded-2xl bg-indigo-50 p-6 text-center ring-1 ring-indigo-100">
-        <div className="text-2xl font-semibold text-slate-900">{item.meanings.join(' / ')}</div>
+      <div className="surface p-7 text-center">
+        <p className="eyebrow">Meaning</p>
+        <p className="display mt-3 text-2xl">{item.meanings.join(' / ')}</p>
       </div>
     );
   }
 
   if (item.type === 'kanji') {
     return (
-      <div className="rounded-2xl bg-indigo-50 p-6 text-center text-xl font-semibold text-slate-900 ring-1 ring-indigo-100">
-        {(item as KanjiItem).meanings.join(', ')}
+      <div className="surface p-7 text-center">
+        <p className="eyebrow">Meaning</p>
+        <p className="display mt-3 text-2xl">{(item as KanjiItem).meanings.join(', ')}</p>
       </div>
     );
   }
@@ -193,22 +190,22 @@ function Answer({ item }: { item: Item }) {
   if (item.type === 'grammar') {
     const grammar = item as GrammarItem;
     return (
-      <div className="space-y-4 rounded-2xl bg-indigo-50 p-6 ring-1 ring-indigo-100">
-        <p className="text-slate-800">{grammar.explanation}</p>
+      <div className="surface space-y-5 p-7">
+        <p className="text-[15px] leading-relaxed text-ink-2">{grammar.explanation}</p>
         <ul className="space-y-3">
           {grammar.exampleSentences.map((example) => (
-            <li key={example.japanese} className="rounded-xl bg-white p-4 ring-1 ring-indigo-100">
+            <li key={example.japanese} className="rounded-xl bg-paper-deep/60 p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <div className="jp-text text-lg font-semibold text-slate-900">{example.japanese}</div>
-                  <div className="text-sm text-slate-500">{example.english}</div>
+                  <p className="jp-text text-lg text-ink">{example.japanese}</p>
+                  <p className="mt-1 text-sm text-ink-2">{example.english}</p>
                 </div>
                 <button
                   onClick={() => speak(example.japanese)}
-                  className="shrink-0 rounded-full bg-indigo-50 px-3 py-1 text-sm text-indigo-700 hover:bg-indigo-100"
+                  className="h-9 w-9 shrink-0 rounded-full text-ink-2 ring-1 ring-ink-line hover:text-ink"
                   aria-label="Listen to example"
                 >
-                  🔊
+                  ▶
                 </button>
               </div>
             </li>
@@ -221,6 +218,13 @@ function Answer({ item }: { item: Item }) {
   return null;
 }
 
+const RATING_TONE: Record<Rating, string> = {
+  1: 'hover:border-shu-500 hover:text-shu-600',
+  2: 'hover:border-ink-3 hover:text-ink',
+  3: 'hover:border-matcha-500 hover:text-matcha-500',
+  4: 'hover:border-ai-600 hover:text-ai-700',
+};
+
 function RatingRow({ onRate }: { onRate: (rating: Rating) => void }) {
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -228,10 +232,10 @@ function RatingRow({ onRate }: { onRate: (rating: Rating) => void }) {
         <button
           key={rating.value}
           onClick={() => onRate(rating.value)}
-          className={`flex flex-col items-center rounded-2xl border-2 px-4 py-3 transition ${rating.tone}`}
+          className={`flex flex-col items-center gap-0.5 rounded-2xl border border-ink-line bg-paper-card px-4 py-4 text-ink transition duration-200 ${RATING_TONE[rating.value]}`}
         >
-          <span className="text-base font-bold">{rating.label}</span>
-          <span className="text-xs opacity-75">{rating.hint}</span>
+          <span className="font-semibold">{rating.label}</span>
+          <span className="text-xs text-ink-3">{rating.hint}</span>
         </button>
       ))}
     </div>

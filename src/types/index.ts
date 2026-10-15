@@ -20,6 +20,23 @@ export interface Level {
 }
 
 // Units
+export interface LessonGuide {
+  intro: string;
+  pronunciation: string;
+  proTip: string;
+}
+
+export interface StoryLine {
+  japanese: string;
+  romaji: string;
+  english: string;
+}
+
+export interface Story {
+  title: string;
+  lines: StoryLine[];
+}
+
 export interface Unit {
   id: string;
   levelId: string;
@@ -27,6 +44,8 @@ export interface Unit {
   title: string;
   theme: string;
   description?: string;
+  guide?: LessonGuide;
+  story?: Story;
 }
 
 // Items (learnable things: kana, kanji, vocab, grammar)

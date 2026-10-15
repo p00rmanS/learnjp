@@ -6,6 +6,8 @@ import type { Item, KanaItem, Level, Unit } from '@/types';
 
 interface LessonBrowserProps {
   onBack: () => void;
+  initialUnitId?: string;
+  onOpenedUnit?: () => void;
 }
 
 interface UnitSummary extends Unit {
@@ -30,7 +32,7 @@ const UNIT_GLYPHS: Record<string, string> = {
   'n5-grammar-2': '法',
 };
 
-export default function LessonBrowser({ onBack }: LessonBrowserProps) {
+export default function LessonBrowser({ onBack, initialUnitId, onOpenedUnit }: LessonBrowserProps) {
   const [levels, setLevels] = useState<Level[]>([]);
   const [units, setUnits] = useState<UnitSummary[]>([]);
   const [selected, setSelected] = useState<UnitSummary | null>(null);
@@ -67,6 +69,14 @@ export default function LessonBrowser({ onBack }: LessonBrowserProps) {
     [levels, units],
   );
 
+  useEffect(() => {
+    if (!initialUnitId || isLoading) return;
+    const unit = units.find((u) => u.id === initialUnitId);
+    if (unit) openUnit(unit);
+    onOpenedUnit?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialUnitId, isLoading]);
+
   async function openUnit(unit: UnitSummary) {
     const unitItems = (await db.items.where('unitId').equals(unit.id).toArray()).sort(
       (a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
@@ -74,10 +84,11 @@ export default function LessonBrowser({ onBack }: LessonBrowserProps) {
     setItems(unitItems);
     setKanaIndex(0);
     setSelected(unit);
+    window.scrollTo({ top: 0 });
   }
 
   if (isLoading) {
-    return <div className="card p-6 text-center text-gray-500">Loading lessons…</div>;
+    return <div className="surface p-8 text-center text-ink-3">Loading lessons…</div>;
   }
 
   if (selected && selected.levelId !== 'stage0') {
@@ -91,29 +102,27 @@ export default function LessonBrowser({ onBack }: LessonBrowserProps) {
     const finish = () => setSelected(null);
 
     return (
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <button onClick={finish} className="text-sm font-medium text-indigo-600 hover:text-indigo-800">
+          <button onClick={finish} className="link-back">
             ← All lessons
           </button>
-          <span className="text-sm text-gray-600">
+          <span className="text-sm tabular-nums text-ink-3">
             {kanaIndex + 1} / {kana.length}
           </span>
         </div>
 
-        {current && (
-          <KanaLesson kana={current} onLearned={() => (isLast ? finish() : setKanaIndex(kanaIndex + 1))} />
-        )}
+        {current && <KanaLesson kana={current} onLearned={() => (isLast ? finish() : setKanaIndex(kanaIndex + 1))} />}
 
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           {kanaIndex > 0 && (
-            <button onClick={() => setKanaIndex(kanaIndex - 1)} className="btn-secondary flex-1">
-              ← Previous
+            <button onClick={() => setKanaIndex(kanaIndex - 1)} className="btn-quiet flex-1">
+              Previous
             </button>
           )}
           {!isLast && (
-            <button onClick={() => setKanaIndex(kanaIndex + 1)} className="btn-secondary flex-1">
-              Skip →
+            <button onClick={() => setKanaIndex(kanaIndex + 1)} className="btn-quiet flex-1">
+              Skip
             </button>
           )}
         </div>
@@ -122,38 +131,45 @@ export default function LessonBrowser({ onBack }: LessonBrowserProps) {
   }
 
   return (
-    <div className="space-y-10">
-      <div>
-        <button onClick={onBack} className="text-sm font-medium text-indigo-600 hover:text-indigo-800">
-          ← Back to home
+    <div className="space-y-14">
+      <div className="max-w-2xl">
+        <button onClick={onBack} className="link-back">
+          ← Back to today
         </button>
-        <h2 className="mt-4 text-3xl font-bold text-slate-900">Lessons</h2>
-        <p className="mt-2 text-slate-600">
-          Pick a unit, learn it, then add it to your reviews. Tap 🔊 to hear any phrase.
+        <p className="eyebrow mt-8">Curriculum</p>
+        <h2 className="display mt-3 text-4xl sm:text-5xl">Lessons</h2>
+        <p className="mt-4 text-[15px] leading-relaxed text-ink-2">
+          Each unit has a teacher's introduction, a pronunciation guide, a pro tip, a short story with romaji and
+          English, and the words themselves. Tap 🔊 to hear any word.
         </p>
       </div>
 
       {grouped.map(({ level, units: levelUnits }) => (
-        <section key={level.id} className="space-y-4">
-          <div>
-            <h3 className="text-lg font-bold uppercase tracking-wide text-slate-500">{level.title}</h3>
-            <p className="text-sm text-slate-500">{level.description}</p>
+        <section key={level.id} className="space-y-6">
+          <div className="flex items-baseline justify-between border-b border-ink-line pb-3">
+            <h3 className="display text-2xl">{level.title}</h3>
+            <p className="hidden text-sm text-ink-3 sm:block">{level.description}</p>
           </div>
+
           <div className="grid gap-4 sm:grid-cols-2">
-            {levelUnits.map((unit) => (
+            {levelUnits.map((unit, index) => (
               <button
                 key={unit.id}
                 onClick={() => openUnit(unit)}
-                className="group flex items-start gap-4 rounded-2xl bg-white p-5 text-left shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-lg hover:ring-indigo-200"
+                className="surface group flex items-start gap-5 p-5 text-left transition duration-300 hover:-translate-y-0.5 hover:shadow-lift"
               >
-                <span className="jp-text flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-ai-50 font-display text-2xl font-semibold text-ai-700 ring-1 ring-ai-100">
+                <span className="hanko h-14 w-14 shrink-0 text-2xl transition group-hover:bg-ai-700" aria-hidden="true">
                   {UNIT_GLYPHS[unit.id] ?? '日'}
                 </span>
-                <span className="min-w-0">
-                  <span className="block font-bold text-slate-900 group-hover:text-indigo-700">{unit.title}</span>
-                  <span className="mt-1 block text-sm text-slate-600">{unit.theme}</span>
-                  <span className="mt-2 inline-block rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600">
-                    {unit.count} {unit.levelId === 'stage0' ? 'kana' : 'items'}
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-3">
+                    {unit.levelId === 'stage0' ? 'Kana' : `Unit ${index + 1}`}
+                    {unit.story && <span className="text-ai-600">· Story</span>}
+                  </span>
+                  <span className="display mt-1 block text-lg leading-snug group-hover:text-ai-700">{unit.title}</span>
+                  <span className="mt-1 block text-sm text-ink-2">{unit.theme}</span>
+                  <span className="mt-3 block text-xs tabular-nums text-ink-3">
+                    {unit.count} {unit.levelId === 'stage0' ? 'characters' : 'items'}
                   </span>
                 </span>
               </button>

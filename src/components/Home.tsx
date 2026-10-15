@@ -1,152 +1,128 @@
 import { useEffect, useState } from 'react';
 import { useUserStore } from '@/stores/userStore';
 import { useFSRSStore } from '@/stores/fsrsStore';
+import Brand from './Brand';
 import DailyPlan from './DailyPlan';
 import ReviewSession from './ReviewSession';
 import LessonBrowser from './LessonBrowser';
 
-type Screen = 'home' | 'review' | 'lessons';
+type Screen = 'today' | 'lessons' | 'review';
+
+const START_UNIT_ID = 'n5-greetings';
 
 export default function Home() {
   const { user } = useUserStore();
   const { stats, loadDueCards } = useFSRSStore();
-  const [screen, setScreen] = useState<Screen>('home');
+  const [screen, setScreen] = useState<Screen>('today');
+  const [openUnitId, setOpenUnitId] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    if (user && screen === 'home') loadDueCards(user.id);
+    if (user && screen === 'today') loadDueCards(user.id);
   }, [user, screen, loadDueCards]);
 
   async function startReview() {
-    if (user) {
-      await loadDueCards(user.id);
-      setScreen('review');
-    }
+    if (!user) return;
+    await loadDueCards(user.id);
+    setScreen('review');
   }
 
-  if (!user) {
-    return null;
+  function openLesson(unitId?: string) {
+    setOpenUnitId(unitId);
+    setScreen('lessons');
   }
+
+  if (!user) return null;
+
+  const activeTab = screen === 'review' ? 'today' : screen;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        {screen === 'home' && (
-          <>
-            {/* Header with hero section */}
-            <div className="text-center mb-12 sm:mb-16">
-              <div className="inline-flex items-center justify-center w-20 h-20 sm:w-28 sm:h-28 rounded-3xl bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100 mb-6 shadow-lg">
-                <h1 className="text-5xl sm:text-7xl font-bold jp-text bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                  道
-                </h1>
-              </div>
-              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">Michi</h2>
-              <p className="text-base sm:text-lg text-gray-600 mb-3">
-                Japanese from Zero to JLPT N1
-              </p>
-              <p className="text-xs sm:text-sm text-gray-500 max-w-2xl mx-auto">
-                Master grammar, kanji, and vocabulary through spaced repetition and structured learning
-              </p>
-            </div>
-
-            {/* Daily plan card */}
-            <div className="mb-8 sm:mb-10">
-              <DailyPlan stats={stats} />
-            </div>
-
-            {/* Action buttons - award-winning design */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-10 sm:mb-12">
+    <div className="min-h-screen">
+      <header className="sticky top-0 z-20 border-b border-ink-line/70 bg-paper/85 backdrop-blur-md">
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
+          <button onClick={() => setScreen('today')} className="rounded-xl text-left" aria-label="Michi home">
+            <Brand />
+          </button>
+          <nav className="flex rounded-full bg-paper-deep p-1 ring-1 ring-ink-line" aria-label="Main">
+            {(
+              [
+                ['today', 'Today'],
+                ['lessons', 'Lessons'],
+              ] as const
+            ).map(([key, label]) => (
               <button
-                onClick={() => setScreen('lessons')}
-                className="group relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 p-6 sm:p-8 text-white font-bold text-lg sm:text-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 active:scale-95"
+                key={key}
+                onClick={() => (key === 'lessons' ? openLesson() : setScreen('today'))}
+                aria-current={activeTab === key ? 'page' : undefined}
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition duration-200 ${
+                  activeTab === key ? 'bg-paper-card text-ink shadow-card' : 'text-ink-2 hover:text-ink'
+                }`}
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-20 bg-white transition-opacity"></div>
-                <div className="relative flex items-center justify-center gap-3">
-                  <span className="text-2xl sm:text-3xl">📚</span>
-                  <span>Browse Lessons</span>
-                </div>
-                <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-30"></div>
+                {label}
               </button>
+            ))}
+          </nav>
+        </div>
+      </header>
 
+      <main className="mx-auto max-w-5xl px-5 pb-24 pt-10 sm:px-8 sm:pt-14">
+        {screen === 'today' && (
+          <div className="animate-rise space-y-10">
+            <div className="max-w-2xl">
+              <p className="eyebrow">Welcome back</p>
+              <h1 className="display mt-3 text-4xl leading-tight sm:text-5xl">
+                A little every day <span className="text-ai-600">becomes fluent.</span>
+              </h1>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2">
+              <DailyPlan stats={stats} />
+
+              <section className="surface flex flex-col justify-between p-7 sm:p-9">
+                <div>
+                  <p className="eyebrow">Start here</p>
+                  <h2 className="display mt-4 text-2xl">Greetings &amp; First Words</h2>
+                  <p className="mt-3 text-[15px] leading-relaxed text-ink-2">
+                    Fourteen phrases, a short story to read aloud, and a teacher's tip on how to say each one.
+                  </p>
+                </div>
+                <button onClick={() => openLesson(START_UNIT_ID)} className="btn-ink mt-8 self-start">
+                  Open lesson
+                </button>
+              </section>
+            </div>
+
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <button
                 onClick={startReview}
                 disabled={stats.total === 0}
-                className={`group relative overflow-hidden rounded-2xl p-6 sm:p-8 font-bold text-lg sm:text-xl transition-all duration-300 transform ${
-                  stats.total > 0
-                    ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:shadow-2xl hover:scale-105 active:scale-95'
-                    : 'bg-gradient-to-r from-gray-300 to-gray-400 text-gray-600 cursor-not-allowed opacity-60'
-                }`}
+                className="btn-ink px-8 py-4 text-base"
               >
-                <div
-                  className={`absolute inset-0 ${
-                    stats.total > 0 ? 'bg-gradient-to-r from-emerald-600 to-teal-600' : ''
-                  } opacity-0 group-hover:opacity-100 transition-opacity`}
-                ></div>
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-20 bg-white transition-opacity"></div>
-                <div className="relative flex items-center justify-center gap-3">
-                  <span className="text-2xl sm:text-3xl">{stats.total > 0 ? '✅' : '⏸️'}</span>
-                  <span>{stats.total > 0 ? 'Start Reviews' : 'All Caught Up'}</span>
-                </div>
-                <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-30"></div>
+                {stats.total > 0 ? 'Start reviews' : 'Nothing due right now'}
               </button>
-            </div>
-
-            {/* Stats grid - polished */}
-            <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-10 sm:mb-12">
-              <div className="card p-4 sm:p-6 text-center hover:shadow-lg transition-all hover:scale-105 duration-300 cursor-default">
-                <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-200 text-blue-700 font-bold text-lg sm:text-2xl mb-3">
-                  {stats.total}
-                </div>
-                <div className="text-xs sm:text-sm font-semibold text-gray-700">Due Today</div>
-              </div>
-
-              <div className="card p-4 sm:p-6 text-center hover:shadow-lg transition-all hover:scale-105 duration-300 cursor-default">
-                <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-indigo-100 to-indigo-200 text-indigo-700 font-bold text-lg sm:text-2xl mb-3">
-                  {user.dailyMinutesGoal}
-                </div>
-                <div className="text-xs sm:text-sm font-semibold text-gray-700">Daily Goal</div>
-              </div>
-
-              <div className="card p-4 sm:p-6 text-center hover:shadow-lg transition-all hover:scale-105 duration-300 cursor-default">
-                <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-green-100 to-emerald-200 text-green-700 font-bold text-lg sm:text-2xl mb-3">
-                  {stats.estimatedMinutes}
-                </div>
-                <div className="text-xs sm:text-sm font-semibold text-gray-700">Est. Time</div>
-              </div>
-            </div>
-
-            {/* Learning path teaser */}
-            <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 sm:p-8 border-2 border-purple-100 shadow-sm hover:shadow-md transition-shadow">
-              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">Your Learning Path</h3>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="flex-1 h-3 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full overflow-hidden">
-                  <div className="h-full w-0 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 transition-all duration-500"></div>
-                </div>
-                <span className="text-sm font-bold text-transparent bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text">
-                  0%
-                </span>
-              </div>
-              <p className="text-sm text-gray-700 font-medium">
-                Stage 0 → N5 → N4 → N3 → N2 → N1
-              </p>
-              <p className="text-xs text-gray-600 mt-2">
-                Complete each level to unlock the next. Master kana, grammar, vocabulary, and reading comprehension step by step.
+              <p className="text-sm text-ink-3">
+                Reviews come back at the right moment, so you remember without cramming.
               </p>
             </div>
-
-            {/* Footer motivational text */}
-            <div className="mt-12 text-center">
-              <p className="text-sm text-gray-600">
-                💪 <span className="font-semibold">Ready to start learning?</span> Click "Browse Lessons" to begin with Stage 0 (Hiragana & Katakana).
-              </p>
-            </div>
-          </>
+          </div>
         )}
 
-        {screen === 'review' && <ReviewSession onComplete={() => setScreen('home')} />}
+        {screen === 'lessons' && (
+          <LessonBrowser
+            initialUnitId={openUnitId}
+            onBack={() => setScreen('today')}
+            onOpenedUnit={() => setOpenUnitId(undefined)}
+          />
+        )}
 
-        {screen === 'lessons' && <LessonBrowser onBack={() => setScreen('home')} />}
-      </div>
+        {screen === 'review' && (
+          <div className="animate-rise">
+            <button onClick={() => setScreen('today')} className="link-back mb-6">
+              ← Back to today
+            </button>
+            <ReviewSession onComplete={() => setScreen('today')} />
+          </div>
+        )}
+      </main>
     </div>
   );
 }

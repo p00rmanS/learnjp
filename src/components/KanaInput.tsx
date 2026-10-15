@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { compareAnswers } from '@/utils/kanaInput';
 
 interface KanaInputProps {
@@ -10,92 +10,55 @@ interface KanaInputProps {
 
 export default function KanaInput({ correctAnswer, cardType, onAnswer, disabled }: KanaInputProps) {
   const [input, setInput] = useState('');
-  const [feedbackType, setFeedbackType] = useState<'correct' | 'incorrect' | null>(null);
-  const [showAnswer, setShowAnswer] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [result, setResult] = useState<'correct' | 'wrong' | null>(null);
+  const locked = disabled || result !== null;
 
-  const handleSubmit = () => {
-    if (!input.trim()) return;
-
+  function submit() {
+    if (!input.trim() || locked) return;
     const isCorrect = compareAnswers(input, correctAnswer);
-    setFeedbackType(isCorrect ? 'correct' : 'incorrect');
-
-    if (!isCorrect) {
-      setShowAnswer(true);
-    }
-
+    setResult(isCorrect ? 'correct' : 'wrong');
     onAnswer(isCorrect, input);
-  };
+  }
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !feedbackType) {
-      handleSubmit();
-    }
-  };
-
-  const placeholder =
-    cardType === 'kana_reading'
-      ? 'Type romaji (e.g., "a" for あ)'
-      : 'Type hiragana (e.g., "a" becomes あ)';
+  const placeholder = cardType === 'kana_reading' ? 'Type the sound in romaji, like "a"' : 'Type the romaji, like "a"';
 
   return (
-    <div className="card p-6 space-y-4">
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-700">Your answer:</label>
-        <input
-          ref={inputRef}
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={placeholder}
-          disabled={disabled || feedbackType !== null}
-          className={`w-full border-2 rounded-lg px-4 py-2 text-lg font-mono transition ${
-            feedbackType === 'correct'
-              ? 'border-green-500 bg-green-50'
-              : feedbackType === 'incorrect'
-                ? 'border-red-500 bg-red-50'
-                : 'border-gray-300 focus:border-brand-600 focus:ring-2 focus:ring-brand-200'
-          } ${disabled || feedbackType ? 'opacity-60 cursor-not-allowed' : ''}`}
-          autoFocus
-        />
-      </div>
+    <div className="surface space-y-4 p-6">
+      <label htmlFor="kana-answer" className="eyebrow">
+        Your answer
+      </label>
+      <input
+        id="kana-answer"
+        type="text"
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        onKeyDown={(e) => e.key === 'Enter' && submit()}
+        placeholder={placeholder}
+        disabled={locked}
+        autoComplete="off"
+        autoCapitalize="none"
+        spellCheck={false}
+        autoFocus
+        className={`w-full rounded-xl border bg-paper px-5 py-4 text-center text-xl font-medium tracking-wide text-ink outline-none transition placeholder:text-ink-3/70 placeholder:text-base placeholder:font-normal focus:ring-2 focus:ring-ai-500/40 disabled:opacity-70 ${
+          result === 'correct'
+            ? 'border-matcha-500'
+            : result === 'wrong'
+              ? 'border-shu-500'
+              : 'border-ink-line focus:border-ai-500'
+        }`}
+      />
 
-      {/* Feedback */}
-      {feedbackType === 'correct' && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center gap-2">
-          <span className="text-2xl">✅</span>
-          <span className="text-green-700 font-medium">Correct!</span>
-        </div>
-      )}
-
-      {feedbackType === 'incorrect' && (
-        <div className="space-y-2">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-center gap-2">
-            <span className="text-2xl">❌</span>
-            <span className="text-red-700 font-medium">Not quite. Here's the answer:</span>
-          </div>
-
-          {showAnswer && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-              <p className="text-sm text-gray-600 mb-1">The correct answer is:</p>
-              <p className="text-2xl jp-text font-bold text-brand-600">{correctAnswer}</p>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Submit button */}
-      {!feedbackType && (
-        <button
-          onClick={handleSubmit}
-          disabled={!input.trim() || disabled}
-          className="w-full btn-primary py-2 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Check Answer
+      {result === null && (
+        <button onClick={submit} disabled={!input.trim()} className="btn-ink w-full">
+          Check
         </button>
       )}
 
+      {result === 'wrong' && (
+        <p className="text-center text-sm text-ink-2">
+          Not quite. The answer is <span className="jp-text text-lg text-ink">{correctAnswer}</span>
+        </p>
+      )}
     </div>
   );
 }
