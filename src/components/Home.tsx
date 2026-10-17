@@ -7,8 +7,9 @@ import Brand from './Brand';
 import GrowthPanel from './GrowthPanel';
 import ReviewSession from './ReviewSession';
 import LessonBrowser from './LessonBrowser';
+import CourseSection from './CourseSection';
 
-type Screen = 'today' | 'lessons' | 'review';
+type Screen = 'today' | 'lessons' | 'courses' | 'review';
 
 const START_UNIT_ID = 'n5-greetings';
 
@@ -54,11 +55,12 @@ export default function Home() {
               [
                 ['today', 'Today'],
                 ['lessons', 'Lessons'],
+                ['courses', 'Kurso'],
               ] as const
             ).map(([key, label]) => (
               <button
                 key={key}
-                onClick={() => (key === 'lessons' ? openLesson() : setScreen('today'))}
+                onClick={() => (key === 'lessons' ? openLesson() : setScreen(key === 'courses' ? 'courses' : 'today'))}
                 aria-current={activeTab === key ? 'page' : undefined}
                 className={`rounded-full px-4 py-2 text-sm font-semibold transition duration-200 ${
                   activeTab === key ? 'bg-paper-card text-ink shadow-card' : 'text-ink-2 hover:text-ink'
@@ -133,6 +135,8 @@ export default function Home() {
             </div>
           </div>
         )}
+
+        {screen === 'courses' && <CourseSection />}
 
         {screen === 'lessons' && (
           <LessonBrowser

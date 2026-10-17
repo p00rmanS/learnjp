@@ -13,6 +13,7 @@ import type {
   ExamAttempt,
   Activity,
   UnitProgress,
+  Mastery,
 } from '@/types';
 
 export class MichiDB extends Dexie {
@@ -30,12 +31,16 @@ export class MichiDB extends Dexie {
 
   activity!: Table<Activity>;
   unitProgress!: Table<UnitProgress>;
+  mastery!: Table<Mastery>;
 
   constructor() {
     super('michi');
     this.version(2).stores({
       activity: 'date',
       unitProgress: 'unitId',
+    });
+    this.version(3).stores({
+      mastery: 'itemId',
     });
     this.version(1).stores({
       users: 'id',

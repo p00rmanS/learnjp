@@ -8,8 +8,8 @@ const XP_PER_LEVEL = 100;
 const UNIT_COMPLETE_BONUS = 50;
 const PASS_RATIO = 0.6;
 
-export type XpSource = 'review' | 'kana' | 'quiz';
-const XP_VALUE: Record<XpSource, number> = { review: 10, kana: 5, quiz: 5 };
+export type XpSource = 'review' | 'kana' | 'quiz' | 'drill';
+const XP_VALUE: Record<XpSource, number> = { review: 10, kana: 5, quiz: 5, drill: 4 };
 
 export function dateKey(date: Date): string {
   const y = date.getFullYear();

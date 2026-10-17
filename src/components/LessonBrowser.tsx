@@ -73,6 +73,7 @@ export default function LessonBrowser({ onBack, initialUnitId, onOpenedUnit }: L
   const grouped = useMemo(
     () =>
       levels
+        .filter((level) => level.id !== 'kanji')
         .map((level) => ({
           level,
           units: units.filter((u) => u.levelId === level.id).sort((a, b) => a.order - b.order),

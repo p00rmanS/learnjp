@@ -5,6 +5,8 @@ import { withSeedOrder } from './order';
 import { phrase } from './factory';
 import { n5MoreGrammar, n5MoreUnits, n5MoreVocab } from './lessons-more';
 import { n5ExtraUnits, n5ExtraVocab } from './lessons-extra';
+import { kanjiItems, kanjiUnits } from './kanji';
+import { n5Extra2Guides, n5Extra2Stories, n5Extra2Units, n5Extra2Vocab, vocabTaglish2 } from './lessons-extra2';
 import { unitGuides, unitStories } from './lessonStories';
 import { vocabTaglish } from './vocabTaglish';
 import { kanaTaglish } from './kanaTaglish';
@@ -190,7 +192,7 @@ export const n5Grammar: GrammarItem[] = [
 ];
 
 function localize(item: Item): Item {
-  if (item.type === 'vocab') return { ...item, tl: vocabTaglish[item.id] };
+  if (item.type === 'vocab') return { ...item, tl: vocabTaglish[item.id] ?? vocabTaglish2[item.id] };
   if (item.type === 'grammar') {
     const tl = grammarTaglish[item.id];
     return tl ? { ...item, explanation: tl.explanation, commonMistakes: tl.commonMistakes } : item;
@@ -203,12 +205,19 @@ function localize(item: Item): Item {
 }
 
 export async function seedLessonContent(db: MichiDB) {
-  const n5All = [...n5Units, ...n5MoreUnits, ...n5ExtraUnits].map((unit) => ({
+  const n5All = [...n5Units, ...n5MoreUnits, ...n5ExtraUnits, ...n5Extra2Units].map((unit) => ({
     ...unit,
-    guide: unitGuides[unit.id],
-    story: unitStories[unit.id],
+    guide: unitGuides[unit.id] ?? n5Extra2Guides[unit.id],
+    story: unitStories[unit.id] ?? n5Extra2Stories[unit.id],
   }));
-  await db.units.bulkPut([...stage0Units, ...n5All]);
+  await db.levels.put({
+    id: 'kanji',
+    name: 'kanji',
+    order: 9,
+    title: 'Kanji Course',
+    description: 'Mga letrang Tsino, tinuturo sa kurso.',
+  });
+  await db.units.bulkPut([...stage0Units, ...n5All, ...kanjiUnits]);
   const allItems: Item[] = [
     ...kanaItems,
     ...katakanaItems,
@@ -217,6 +226,8 @@ export async function seedLessonContent(db: MichiDB) {
     ...n5MoreVocab,
     ...n5MoreGrammar,
     ...n5ExtraVocab,
+    ...kanjiItems,
+    ...n5Extra2Vocab,
   ];
   await db.items.bulkPut(withSeedOrder(allItems.map(localize)));
 }
