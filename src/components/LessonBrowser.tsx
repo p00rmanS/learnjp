@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { db } from '@/db';
 import KanaLesson from './KanaLesson';
 import UnitLesson from './UnitLesson';
+import { useArrowKeys } from '@/utils/keyboard';
 import type { Item, KanaItem, Level, Unit } from '@/types';
 
 interface LessonBrowserProps {
@@ -39,16 +40,22 @@ export default function LessonBrowser({ onBack, initialUnitId, onOpenedUnit }: L
   const [items, setItems] = useState<Item[]>([]);
   const [kanaIndex, setKanaIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     (async () => {
-      const [allLevels, allUnits] = await Promise.all([db.levels.toArray(), db.units.toArray()]);
+      const [allLevels, allUnits, completed] = await Promise.all([
+        db.levels.toArray(),
+        db.units.toArray(),
+        db.unitProgress.toArray(),
+      ]);
       const summaries = await Promise.all(
         allUnits.map(async (unit) => ({
           ...unit,
           count: await db.items.where('unitId').equals(unit.id).count(),
         })),
       );
+      setCompletedIds(new Set(completed.map((c) => c.unitId)));
       setLevels(allLevels.sort((a, b) => a.order - b.order));
       setUnits(summaries);
       setIsLoading(false);
@@ -87,12 +94,36 @@ export default function LessonBrowser({ onBack, initialUnitId, onOpenedUnit }: L
     window.scrollTo({ top: 0 });
   }
 
+  const flatUnits = useMemo(() => grouped.flatMap((g) => g.units), [grouped]);
+  const selectedPos = selected ? flatUnits.findIndex((u) => u.id === selected.id) : -1;
+  const prevUnit = selectedPos > 0 ? flatUnits[selectedPos - 1] : undefined;
+  const nextUnit = selectedPos >= 0 && selectedPos < flatUnits.length - 1 ? flatUnits[selectedPos + 1] : undefined;
+
+  const kanaMode = selected?.levelId === 'stage0';
+  useArrowKeys(
+    kanaMode ? () => setKanaIndex((i) => Math.max(0, i - 1)) : undefined,
+    kanaMode ? () => setKanaIndex((i) => Math.min(items.length - 1, i + 1)) : undefined,
+    Boolean(kanaMode),
+  );
+
   if (isLoading) {
     return <div className="surface p-8 text-center text-ink-3">Loading lessons…</div>;
   }
 
-  if (selected && selected.levelId !== 'stage0') {
-    return <UnitLesson unit={selected} items={items} onBack={() => setSelected(null)} />;
+  if (selected && !kanaMode) {
+    return (
+      <UnitLesson
+        unit={selected}
+        items={items}
+        onBack={() => setSelected(null)}
+        prevUnit={prevUnit}
+        nextUnit={nextUnit}
+        onNavigate={(unit) => {
+          const target = flatUnits.find((u) => u.id === unit.id);
+          if (target) openUnit(target);
+        }}
+      />
+    );
   }
 
   if (selected) {
@@ -165,6 +196,7 @@ export default function LessonBrowser({ onBack, initialUnitId, onOpenedUnit }: L
                   <span className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-3">
                     {unit.levelId === 'stage0' ? 'Kana' : `Unit ${index + 1}`}
                     {unit.story && <span className="text-ai-600">· Story</span>}
+                    {completedIds.has(unit.id) && <span className="text-matcha-500">· Completed</span>}
                   </span>
                   <span className="display mt-1 block text-lg leading-snug group-hover:text-ai-700">{unit.title}</span>
                   <span className="mt-1 block text-sm text-ink-2">{unit.theme}</span>

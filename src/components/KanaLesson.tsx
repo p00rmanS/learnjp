@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useUserStore } from '@/stores/userStore';
 import { addItemsToReview } from '@/services/cards';
+import { recordXp } from '@/services/progress';
 import { speak } from '@/utils/speech';
 import type { KanaItem } from '@/types';
 
@@ -21,6 +22,7 @@ export default function KanaLesson({ kana, onLearned }: KanaLessonProps) {
     try {
       await addItemsToReview(user.id, [kana], 'kana_reading');
       await addItemsToReview(user.id, [kana], 'vocab_recall_typed');
+      await recordXp('kana');
       onLearned();
     } catch (err) {
       console.error('Failed to create cards:', err);

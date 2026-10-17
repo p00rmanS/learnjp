@@ -1,22 +1,44 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useUserStore } from '@/stores/userStore';
+import { useProgressStore } from '@/stores/progressStore';
+import { db } from '@/db';
 import { addItemsToReview } from '@/services/cards';
+import { completeUnit, type UnitResult } from '@/services/progress';
 import { speak, speakAll } from '@/utils/speech';
+import { useArrowKeys } from '@/utils/keyboard';
+import UnitQuiz from './UnitQuiz';
 import type { GrammarItem, Item, Unit, VocabItem } from '@/types';
 
 interface UnitLessonProps {
   unit: Unit;
   items: Item[];
   onBack: () => void;
+  prevUnit?: Unit;
+  nextUnit?: Unit;
+  onNavigate: (unit: Unit) => void;
 }
 
-export default function UnitLesson({ unit, items, onBack }: UnitLessonProps) {
+export default function UnitLesson({ unit, items, onBack, prevUnit, nextUnit, onNavigate }: UnitLessonProps) {
   const { user } = useUserStore();
+  const refreshProgress = useProgressStore((s) => s.refresh);
   const [status, setStatus] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [practicing, setPracticing] = useState(false);
+  const [completed, setCompleted] = useState(false);
+  const [result, setResult] = useState<UnitResult | null>(null);
 
   const isGrammar = items.length > 0 && items.every((item) => item.type === 'grammar');
   const cardType = isGrammar ? 'grammar_cloze' : 'vocab_meaning';
+
+  useEffect(() => {
+    db.unitProgress.get(unit.id).then((row) => setCompleted(Boolean(row)));
+  }, [unit.id]);
+
+  useArrowKeys(
+    prevUnit ? () => onNavigate(prevUnit) : undefined,
+    nextUnit ? () => onNavigate(nextUnit) : undefined,
+    !practicing,
+  );
 
   async function addUnit() {
     if (!user) return;
@@ -36,8 +58,46 @@ export default function UnitLesson({ unit, items, onBack }: UnitLessonProps) {
     }
   }
 
+  async function finishPractice(correct: number, total: number) {
+    const outcome = await completeUnit(unit.id, correct, total);
+    setResult(outcome);
+    if (outcome.passed) setCompleted(true);
+    await refreshProgress();
+  }
+
   const guide = unit.guide;
   const story = unit.story;
+
+  if (practicing) {
+    return (
+      <article className="animate-rise space-y-10">
+        <button
+          onClick={() => {
+            setPracticing(false);
+            setResult(null);
+          }}
+          className="link-back"
+        >
+          ← Back to {unit.title}
+        </button>
+        <div>
+          <p className="eyebrow">Practice</p>
+          <h2 className="display mt-3 text-3xl sm:text-4xl">{unit.title}</h2>
+        </div>
+        <UnitQuiz
+          items={items}
+          onFinish={finishPractice}
+          onClose={() => {
+            setPracticing(false);
+            setResult(null);
+          }}
+        />
+        {result && result.xpAwarded > 0 && (
+          <p className="text-center text-sm font-semibold text-ai-700">+{result.xpAwarded} XP</p>
+        )}
+      </article>
+    );
+  }
 
   return (
     <article className="animate-rise space-y-12">
@@ -45,17 +105,35 @@ export default function UnitLesson({ unit, items, onBack }: UnitLessonProps) {
         <button onClick={onBack} className="link-back">
           ← All lessons
         </button>
-        <p className="eyebrow mt-8">{isGrammar ? 'Grammar' : 'Words & phrases'}</p>
+        <div className="mt-8 flex flex-wrap items-center gap-3">
+          <p className="eyebrow">{isGrammar ? 'Grammar' : 'Words & phrases'}</p>
+          {completed && (
+            <span className="rounded-full bg-matcha-100 px-3 py-1 text-xs font-semibold text-matcha-500">Completed</span>
+          )}
+        </div>
         <h2 className="display mt-3 text-4xl sm:text-5xl">{unit.title}</h2>
         <p className="mt-3 text-lg text-ink-2">{unit.theme}</p>
 
         <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
-          <button onClick={addUnit} disabled={busy} className="btn-ink">
+          <button onClick={addUnit} disabled={busy} className="btn-quiet">
             {busy ? 'Adding…' : 'Add to my reviews'}
           </button>
           {status && <p className="text-sm text-ink-2">{status}</p>}
         </div>
       </div>
+
+      <section className="surface flex flex-col gap-5 p-7 sm:flex-row sm:items-center sm:justify-between sm:p-9">
+        <div>
+          <p className="eyebrow">Practice</p>
+          <p className="display mt-2 text-2xl">Five quick questions</p>
+          <p className="mt-2 text-sm text-ink-2">
+            Pass with 3 right to complete this unit. You earn XP for every correct answer.
+          </p>
+        </div>
+        <button onClick={() => setPracticing(true)} className="btn-ink shrink-0">
+          {completed ? 'Practice again' : 'Start practice'}
+        </button>
+      </section>
 
       {guide && (
         <section className="surface relative p-7 sm:p-10">
@@ -178,6 +256,30 @@ export default function UnitLesson({ unit, items, onBack }: UnitLessonProps) {
           </div>
         )}
       </section>
+
+      <nav className="grid gap-4 border-t border-ink-line pt-10 sm:grid-cols-2" aria-label="Lesson navigation">
+        {prevUnit ? (
+          <button onClick={() => onNavigate(prevUnit)} className="surface group p-5 text-left transition hover:-translate-y-0.5">
+            <span className="eyebrow">← Previous</span>
+            <span className="display mt-2 block text-lg group-hover:text-ai-700">{prevUnit.title}</span>
+          </button>
+        ) : (
+          <span />
+        )}
+        {nextUnit && (
+          <button
+            onClick={() => onNavigate(nextUnit)}
+            className="surface group p-5 text-left transition hover:-translate-y-0.5 sm:col-start-2 sm:text-right"
+          >
+            <span className="eyebrow">Next →</span>
+            <span className="display mt-2 block text-lg group-hover:text-ai-700">{nextUnit.title}</span>
+          </button>
+        )}
+      </nav>
+      <p className="text-center text-xs text-ink-3">
+        Tip: press <kbd className="rounded border border-ink-line px-1.5 py-0.5 font-mono">←</kbd>{' '}
+        <kbd className="rounded border border-ink-line px-1.5 py-0.5 font-mono">→</kbd> to move between units.
+      </p>
     </article>
   );
 }

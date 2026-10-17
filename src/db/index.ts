@@ -11,6 +11,8 @@ import type {
   ListeningClip,
   MockExam,
   ExamAttempt,
+  Activity,
+  UnitProgress,
 } from '@/types';
 
 export class MichiDB extends Dexie {
@@ -26,8 +28,15 @@ export class MichiDB extends Dexie {
   mockExams!: Table<MockExam>;
   examAttempts!: Table<ExamAttempt>;
 
+  activity!: Table<Activity>;
+  unitProgress!: Table<UnitProgress>;
+
   constructor() {
     super('michi');
+    this.version(2).stores({
+      activity: 'date',
+      unitProgress: 'unitId',
+    });
     this.version(1).stores({
       users: 'id',
       levels: 'id, order',

@@ -227,6 +227,20 @@ export interface ExamAttempt {
   scores: Record<string, number>;
 }
 
+// Growth: one row per local calendar day that had any activity
+export interface Activity {
+  date: string; // YYYY-MM-DD
+  xp: number;
+  reviews: number;
+  lessons: number;
+}
+
+export interface UnitProgress {
+  unitId: string;
+  completedAt: Date;
+  bestScore: number;
+}
+
 // Sync metadata (for offline-first)
 export interface SyncMetadata {
   lastSyncAt: Date;

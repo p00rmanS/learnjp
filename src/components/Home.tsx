@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useUserStore } from '@/stores/userStore';
 import { useFSRSStore } from '@/stores/fsrsStore';
+import { useProgressStore } from '@/stores/progressStore';
+import { db } from '@/db';
 import Brand from './Brand';
-import DailyPlan from './DailyPlan';
+import GrowthPanel from './GrowthPanel';
 import ReviewSession from './ReviewSession';
 import LessonBrowser from './LessonBrowser';
 
@@ -13,12 +15,17 @@ const START_UNIT_ID = 'n5-greetings';
 export default function Home() {
   const { user } = useUserStore();
   const { stats, loadDueCards } = useFSRSStore();
+  const { summary, refresh } = useProgressStore();
   const [screen, setScreen] = useState<Screen>('today');
   const [openUnitId, setOpenUnitId] = useState<string | undefined>(undefined);
+  const [totalUnits, setTotalUnits] = useState(0);
 
   useEffect(() => {
-    if (user && screen === 'today') loadDueCards(user.id);
-  }, [user, screen, loadDueCards]);
+    if (!user || screen !== 'today') return;
+    loadDueCards(user.id);
+    refresh();
+    db.units.where('levelId').equals('n5').count().then(setTotalUnits);
+  }, [user, screen, loadDueCards, refresh]);
 
   async function startReview() {
     if (!user) return;
@@ -74,9 +81,16 @@ export default function Home() {
               </h1>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2">
-              <DailyPlan stats={stats} />
+            {summary && (
+              <GrowthPanel
+                summary={summary}
+                totalUnits={totalUnits}
+                reviewsDue={stats.total}
+                onReview={startReview}
+              />
+            )}
 
+            <div className="grid gap-6">
               <section className="surface flex flex-col justify-between p-7 sm:p-9">
                 <div>
                   <p className="eyebrow">Start here</p>

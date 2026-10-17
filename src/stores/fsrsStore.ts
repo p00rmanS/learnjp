@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { db } from '@/db';
 import { scheduleCard } from '@/services/fsrsService';
+import { recordXp } from '@/services/progress';
 import type { Card, ReviewLog } from '@/types';
 
 export interface DueStats {
@@ -71,6 +72,7 @@ export const useFSRSStore = create<FSRSStore>((set, get) => ({
         await db.reviewLogs.add(log);
         await db.cards.update(cardId, { fsrsState: nextState, lastReviewedAt: reviewedAt });
       });
+      await recordXp('review');
     } catch (error) {
       console.error('Failed to record review:', error);
     }
