@@ -152,7 +152,7 @@ export default function UnitQuiz({ items, onFinish, onClose }: UnitQuizProps) {
       </div>
 
       <section className="surface p-8 text-center sm:p-12">
-        <p className="eyebrow">What does this mean?</p>
+        <p className="eyebrow">Ano ang ibig sabihin nito?</p>
         <p className="jp-text mt-6 text-4xl leading-snug text-ink sm:text-5xl">{question.prompt}</p>
         {question.hint && <p className="jp-text mt-2 text-base text-ink-3">{question.hint}</p>}
         <button onClick={() => speak(question.speakText)} className="btn-quiet mt-6 py-2 text-sm">
@@ -187,7 +187,7 @@ export default function UnitQuiz({ items, onFinish, onClose }: UnitQuizProps) {
       {answered && (
         <div className="flex items-center justify-between gap-4">
           <p className={`text-sm font-semibold ${picked === question.answer ? 'text-matcha-500' : 'text-shu-600'}`}>
-            {picked === question.answer ? 'Correct!' : `Not quite. It means “${question.answer}”.`}
+            {picked === question.answer ? 'Tama!' : `Hindi tama. Ang ibig sabihin nito ay “${question.answer}”.`}
           </p>
           <button onClick={next} className="btn-ink">
             {isLast ? 'Finish' : 'Next'}

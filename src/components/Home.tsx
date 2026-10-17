@@ -74,11 +74,25 @@ export default function Home() {
       <main className="mx-auto max-w-5xl px-5 pb-24 pt-10 sm:px-8 sm:pt-14">
         {screen === 'today' && (
           <div className="animate-rise space-y-10">
-            <div className="max-w-2xl">
-              <p className="eyebrow">Welcome back</p>
-              <h1 className="display mt-3 text-4xl leading-tight sm:text-5xl">
-                A little every day <span className="text-ai-600">becomes fluent.</span>
-              </h1>
+            <div className="flex items-stretch justify-between gap-8 border-b border-ink-line pb-10">
+              <div className="max-w-2xl">
+                <p className="eyebrow">Maligayang pagbabalik</p>
+                <h1 className="display mt-4 text-[2.75rem] leading-[1.05] sm:text-6xl">
+                  Kaunting araw-araw,
+                  <br />
+                  <span className="italic text-ai-600">malaking progreso.</span>
+                </h1>
+                <p className="mt-6 max-w-lg text-[15px] leading-relaxed text-ink-2">
+                  Hindi kailangan ng mahabang oras. Ang mahalaga, bumalik ka araw-araw. Ang streak mo ang magpapaalala
+                  sa iyo.
+                </p>
+              </div>
+              <span
+                className="vertical-jp hidden select-none font-kanji text-[7rem] leading-none text-ai-100 sm:block"
+                aria-hidden="true"
+              >
+                道を歩く
+              </span>
             </div>
 
             {summary && (
@@ -93,10 +107,10 @@ export default function Home() {
             <div className="grid gap-6">
               <section className="surface flex flex-col justify-between p-7 sm:p-9">
                 <div>
-                  <p className="eyebrow">Start here</p>
+                  <p className="eyebrow">Simulan dito</p>
                   <h2 className="display mt-4 text-2xl">Greetings &amp; First Words</h2>
                   <p className="mt-3 text-[15px] leading-relaxed text-ink-2">
-                    Fourteen phrases, a short story to read aloud, and a teacher's tip on how to say each one.
+                    Labing-apat na salita, isang maikling kwento, at tip ng teacher kung paano bigkasin ang bawat isa.
                   </p>
                 </div>
                 <button onClick={() => openLesson(START_UNIT_ID)} className="btn-ink mt-8 self-start">
@@ -113,8 +127,8 @@ export default function Home() {
               >
                 {stats.total > 0 ? 'Start reviews' : 'Nothing due right now'}
               </button>
-              <p className="text-sm text-ink-3">
-                Reviews come back at the right moment, so you remember without cramming.
+              <p className="max-w-sm text-sm text-ink-3">
+                Bumabalik ang mga review sa tamang oras, kaya natatandaan mo nang hindi nagmamadali.
               </p>
             </div>
           </div>

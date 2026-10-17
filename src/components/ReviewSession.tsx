@@ -174,6 +174,7 @@ function Answer({ item }: { item: Item }) {
       <div className="surface p-7 text-center">
         <p className="eyebrow">Meaning</p>
         <p className="display mt-3 text-2xl">{item.meanings.join(' / ')}</p>
+        {item.tl && <p className="mt-4 text-sm leading-relaxed text-ink-2">{item.tl}</p>}
       </div>
     );
   }

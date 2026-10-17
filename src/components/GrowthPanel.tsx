@@ -41,8 +41,8 @@ export default function GrowthPanel({ summary, totalUnits, reviewsDue, onReview 
                 </span>
               ))}
             </div>
-            <p className="mt-2 max-w-[13rem] text-xs text-ink-3">
-              A shield saves your streak on a day you miss. You earn one every 7 days.
+            <p className="mt-2 max-w-[13rem] text-xs leading-relaxed text-ink-3">
+              Iligtas ng shield ang streak mo kapag may nalaktawan kang araw. Kumikita ka ng isa tuwing 7 araw.
             </p>
           </div>
         </div>
@@ -72,10 +72,10 @@ export default function GrowthPanel({ summary, totalUnits, reviewsDue, onReview 
 
         <p className="mt-6 text-[15px] text-ink-2">
           {summary.activeToday
-            ? 'Streak saved for today. Come back tomorrow to keep it going.'
+            ? 'Na-save na ang streak mo ngayong araw. Bumalik bukas para tuloy-tuloy.'
             : reviewsDue > 0
-              ? `Do one review to keep your ${summary.streak}-day streak alive.`
-              : 'Learn one new lesson to start today’s streak.'}
+              ? `Mag-review ng isa para mabuhay ang ${summary.streak} na araw na streak mo.`
+              : 'Mag-aral ng isang bagong lesson para magsimula ng streak ngayon.'}
         </p>
         {!summary.activeToday && reviewsDue > 0 && (
           <button onClick={onReview} className="btn-ink mt-5">
@@ -94,7 +94,7 @@ export default function GrowthPanel({ summary, totalUnits, reviewsDue, onReview 
                 {summary.todayXp}
                 <span className="text-base text-ink-3"> / {DAILY_XP_GOAL}</span>
               </p>
-              <p className="text-sm text-ink-2">{goalMet ? 'Goal reached. Nicely done!' : 'XP earned today'}</p>
+              <p className="text-sm text-ink-2">{goalMet ? 'Naabot ang goal! Galing!' : 'XP ngayong araw'}</p>
             </div>
           </div>
         </div>

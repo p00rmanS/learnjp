@@ -126,8 +126,8 @@ export default function UnitLesson({ unit, items, onBack, prevUnit, nextUnit, on
         <div>
           <p className="eyebrow">Practice</p>
           <p className="display mt-2 text-2xl">Five quick questions</p>
-          <p className="mt-2 text-sm text-ink-2">
-            Pass with 3 right to complete this unit. You earn XP for every correct answer.
+          <p className="mt-2 text-sm leading-relaxed text-ink-2">
+            Kailangan ng 3 tama para matapos ang unit. May XP ka sa bawat tamang sagot.
           </p>
         </div>
         <button onClick={() => setPracticing(true)} className="btn-ink shrink-0">
@@ -142,7 +142,7 @@ export default function UnitLesson({ unit, items, onBack, prevUnit, nextUnit, on
               先
             </span>
             <div>
-              <p className="eyebrow">Your teacher says</p>
+              <p className="eyebrow">Sabi ng teacher mo</p>
               <p className="mt-3 text-[17px] leading-relaxed text-ink">{guide.intro}</p>
             </div>
           </div>
@@ -152,7 +152,7 @@ export default function UnitLesson({ unit, items, onBack, prevUnit, nextUnit, on
       {guide && (
         <div className="grid gap-5 md:grid-cols-2">
           <section className="surface p-7">
-            <p className="eyebrow text-ai-600">How to say it</p>
+            <p className="eyebrow text-ai-600">Paano bigkasin</p>
             <p className="mt-3 text-[15px] leading-relaxed text-ink-2">{guide.pronunciation}</p>
           </section>
           <section className="surface bg-shu-500/[0.06] p-7 ring-shu-500/20">
@@ -166,7 +166,7 @@ export default function UnitLesson({ unit, items, onBack, prevUnit, nextUnit, on
         <section className="space-y-6">
           <div className="flex flex-col gap-4 border-b border-ink-line pb-5 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="eyebrow">Story time</p>
+              <p className="eyebrow">Kwento</p>
               <h3 className="display mt-2 text-2xl">{story.title}</h3>
             </div>
             <button
@@ -185,6 +185,7 @@ export default function UnitLesson({ unit, items, onBack, prevUnit, nextUnit, on
                   <p className="jp-text text-xl leading-relaxed text-ink sm:text-2xl">{line.japanese}</p>
                   <p className="mt-2 text-[15px] italic text-ai-600">{line.romaji}</p>
                   <p className="mt-1 text-[15px] text-ink-2">{line.english}</p>
+                  <p className="mt-3 border-l-2 border-ai-100 pl-3 text-sm leading-relaxed text-ink-2">{line.tl}</p>
                 </div>
                 <button
                   onClick={() => speak(line.japanese)}
@@ -200,7 +201,7 @@ export default function UnitLesson({ unit, items, onBack, prevUnit, nextUnit, on
       )}
 
       <section className="space-y-6">
-        <p className="eyebrow">{isGrammar ? 'Patterns' : 'Words'}</p>
+        <p className="eyebrow">{isGrammar ? 'Mga pattern' : 'Mga salita'}</p>
 
         {isGrammar ? (
           <div className="space-y-5">
@@ -243,6 +244,7 @@ export default function UnitLesson({ unit, items, onBack, prevUnit, nextUnit, on
                   {item.kanji && <p className="jp-text mt-0.5 text-sm text-ink-3">{item.kanji}</p>}
                   <p className="mt-2 text-sm italic text-ai-600">{item.romaji}</p>
                   <p className="mt-1 text-[15px] text-ink-2">{item.meanings.join(' / ')}</p>
+                  {item.tl && <p className="mt-2 text-sm leading-relaxed text-ink-3">{item.tl}</p>}
                 </div>
                 <button
                   onClick={() => speak(item.kana)}

@@ -30,6 +30,7 @@ export interface StoryLine {
   japanese: string;
   romaji: string;
   english: string;
+  tl: string;
 }
 
 export interface Story {
@@ -89,6 +90,7 @@ export interface VocabItem extends BaseItem {
   kanji?: string;
   romaji: string;
   meanings: string[];
+  tl?: string;
   partOfSpeech: string;
   mnemonic?: string;
   audioUrl?: string;

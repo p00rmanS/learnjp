@@ -8,9 +8,7 @@
   }
 
   body {
-    @apply bg-paper text-ink font-ui antialiased;
-    background-image: radial-gradient(circle at 1px 1px, rgba(28, 31, 43, 0.05) 1px, transparent 0);
-    background-size: 22px 22px;
+    @apply bg-paper font-ui text-ink antialiased;
   }
 
   ::selection {
@@ -20,27 +18,43 @@
   :focus-visible {
     @apply outline-none ring-2 ring-ai-500 ring-offset-2 ring-offset-paper;
   }
+
+  kbd {
+    @apply font-ui text-xs;
+  }
 }
 
 @layer components {
   .eyebrow {
-    @apply text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-3;
+    @apply text-[11px] font-semibold uppercase tracking-eyebrow text-ink-3;
   }
 
   .display {
-    @apply font-display font-semibold tracking-tight text-ink;
+    @apply font-display font-medium tracking-tight text-ink;
   }
 
   .surface {
-    @apply rounded-2xl bg-paper-card ring-1 ring-ink-line shadow-card;
+    @apply rounded-[4px] border border-ink-line bg-paper-card;
   }
 
   .btn-ink {
-    @apply inline-flex items-center justify-center gap-2 rounded-full bg-ai-700 px-6 py-3 text-[15px] font-semibold text-paper-card shadow-card transition duration-200 hover:bg-ai-800 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-[3px] bg-ink px-6 py-3 text-[14px] font-semibold tracking-wide text-paper-card transition duration-200 hover:bg-ai-700 disabled:cursor-not-allowed disabled:opacity-40;
   }
 
   .btn-quiet {
-    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-[15px] font-medium text-ink-2 ring-1 ring-ink-line transition duration-200 hover:bg-paper-deep hover:text-ink disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-[3px] border border-ink-line px-5 py-3 text-[14px] font-medium text-ink transition duration-200 hover:border-ink hover:bg-paper-deep disabled:opacity-40;
+  }
+
+  .link-back {
+    @apply inline-flex items-center gap-2 text-sm font-medium text-ink-2 underline-offset-4 transition hover:text-ai-600 hover:underline;
+  }
+
+  .hanko {
+    @apply inline-flex items-center justify-center rounded-[2px] bg-shu-500 font-kanji font-bold text-paper-card;
+  }
+
+  .jp-text {
+    @apply font-jp;
   }
 
   .card {
@@ -54,36 +68,12 @@
   .btn-secondary {
     @apply btn-quiet;
   }
-
-  .link-back {
-    @apply inline-flex items-center gap-2 text-sm font-medium text-ink-2 transition hover:text-ai-600;
-  }
-
-  .hanko {
-    @apply inline-flex items-center justify-center rounded-[6px] bg-shu-500 font-display font-bold text-paper-card shadow-[inset_0_0_0_2px_rgba(255,255,255,0.12)];
-  }
-
-  .jp-text {
-    @apply font-jp;
-  }
-
-  .rule {
-    @apply h-px w-full bg-ink-line;
-  }
-}
-
-ruby {
-  @apply font-jp;
-}
-
-rt {
-  @apply text-xs font-light;
 }
 
 @keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
@@ -92,7 +82,12 @@ rt {
 }
 
 .animate-rise {
-  animation: rise 520ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation: rise 420ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.vertical-jp {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
 }
 
 @media (prefers-reduced-motion: reduce) {

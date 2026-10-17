@@ -1,10 +1,14 @@
-import type { GrammarItem, Unit, VocabItem } from '@/types';
+import type { GrammarItem, Item, Unit, VocabItem } from '@/types';
 import type { MichiDB } from '@/db';
 import { kanaItems, katakanaItems, stage0Units } from './kana';
 import { withSeedOrder } from './order';
 import { phrase } from './factory';
 import { n5MoreGrammar, n5MoreUnits, n5MoreVocab } from './lessons-more';
+import { n5ExtraUnits, n5ExtraVocab } from './lessons-extra';
 import { unitGuides, unitStories } from './lessonStories';
+import { vocabTaglish } from './vocabTaglish';
+import { kanaTaglish } from './kanaTaglish';
+import { grammarTaglish } from './grammarTaglish';
 
 export const n5Units: Unit[] = [
   { id: 'n5-greetings', levelId: 'n5', order: 1, title: 'Greetings & First Words', theme: 'Open and close every conversation' },
@@ -185,14 +189,34 @@ export const n5Grammar: GrammarItem[] = [
   },
 ];
 
+function localize(item: Item): Item {
+  if (item.type === 'vocab') return { ...item, tl: vocabTaglish[item.id] };
+  if (item.type === 'grammar') {
+    const tl = grammarTaglish[item.id];
+    return tl ? { ...item, explanation: tl.explanation, commonMistakes: tl.commonMistakes } : item;
+  }
+  if (item.type === 'kana') {
+    const base = item.id.replace(/^kana-/, '').replace(/-katakana$/, '');
+    return { ...item, mnemonic: kanaTaglish[base] ?? item.mnemonic };
+  }
+  return item;
+}
+
 export async function seedLessonContent(db: MichiDB) {
-  const n5All = [...n5Units, ...n5MoreUnits].map((unit) => ({
+  const n5All = [...n5Units, ...n5MoreUnits, ...n5ExtraUnits].map((unit) => ({
     ...unit,
     guide: unitGuides[unit.id],
     story: unitStories[unit.id],
   }));
   await db.units.bulkPut([...stage0Units, ...n5All]);
-  await db.items.bulkPut(
-    withSeedOrder([...kanaItems, ...katakanaItems, ...n5Vocab, ...n5Grammar, ...n5MoreVocab, ...n5MoreGrammar]),
-  );
+  const allItems: Item[] = [
+    ...kanaItems,
+    ...katakanaItems,
+    ...n5Vocab,
+    ...n5Grammar,
+    ...n5MoreVocab,
+    ...n5MoreGrammar,
+    ...n5ExtraVocab,
+  ];
+  await db.items.bulkPut(withSeedOrder(allItems.map(localize)));
 }
