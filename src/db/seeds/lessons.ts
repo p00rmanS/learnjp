@@ -7,6 +7,8 @@ import { n5MoreGrammar, n5MoreUnits, n5MoreVocab } from './lessons-more';
 import { n5ExtraUnits, n5ExtraVocab } from './lessons-extra';
 import { kanjiItems, kanjiUnits } from './kanji';
 import { n5Extra2Guides, n5Extra2Stories, n5Extra2Units, n5Extra2Vocab, vocabTaglish2 } from './lessons-extra2';
+import { n5Extra3Grammar, n5Extra3Guides, n5Extra3Stories, n5Extra3Units, n5Extra3Vocab } from './lessons-extra3';
+import { vocabTaglish3 } from './vocabTaglish3';
 import { unitGuides, unitStories } from './lessonStories';
 import { vocabTaglish } from './vocabTaglish';
 import { kanaTaglish } from './kanaTaglish';
@@ -192,7 +194,9 @@ export const n5Grammar: GrammarItem[] = [
 ];
 
 function localize(item: Item): Item {
-  if (item.type === 'vocab') return { ...item, tl: vocabTaglish[item.id] ?? vocabTaglish2[item.id] };
+  if (item.type === 'vocab') {
+    return { ...item, tl: vocabTaglish[item.id] ?? vocabTaglish2[item.id] ?? vocabTaglish3[item.id] };
+  }
   if (item.type === 'grammar') {
     const tl = grammarTaglish[item.id];
     return tl ? { ...item, explanation: tl.explanation, commonMistakes: tl.commonMistakes } : item;
@@ -205,10 +209,10 @@ function localize(item: Item): Item {
 }
 
 export async function seedLessonContent(db: MichiDB) {
-  const n5All = [...n5Units, ...n5MoreUnits, ...n5ExtraUnits, ...n5Extra2Units].map((unit) => ({
+  const n5All = [...n5Units, ...n5MoreUnits, ...n5ExtraUnits, ...n5Extra2Units, ...n5Extra3Units].map((unit) => ({
     ...unit,
-    guide: unitGuides[unit.id] ?? n5Extra2Guides[unit.id],
-    story: unitStories[unit.id] ?? n5Extra2Stories[unit.id],
+    guide: unitGuides[unit.id] ?? n5Extra2Guides[unit.id] ?? n5Extra3Guides[unit.id],
+    story: unitStories[unit.id] ?? n5Extra2Stories[unit.id] ?? n5Extra3Stories[unit.id],
   }));
   await db.levels.put({
     id: 'kanji',
@@ -228,6 +232,8 @@ export async function seedLessonContent(db: MichiDB) {
     ...n5ExtraVocab,
     ...kanjiItems,
     ...n5Extra2Vocab,
+    ...n5Extra3Vocab,
+    ...n5Extra3Grammar,
   ];
   await db.items.bulkPut(withSeedOrder(allItems.map(localize)));
 }
