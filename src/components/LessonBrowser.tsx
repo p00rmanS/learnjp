@@ -40,6 +40,8 @@ const UNIT_GLYPHS: Record<string, string> = {
   'n5-house': '屋',
   'n5-clothes': '服',
   'n5-grammar-3': '型',
+  'n5-classroom': '室',
+  'n5-sightseeing': '旅',
 };
 
 export default function LessonBrowser({ onBack, initialUnitId, onOpenedUnit }: LessonBrowserProps) {
