@@ -65,9 +65,7 @@ export async function initializeDatabase() {
   const { seedLessonContent } = await import('./seeds/lessons');
   await seedLessonContent(db);
 
-  const count = await db.levels.count();
-  if (count === 0) {
-    await db.levels.bulkAdd([
+  await db.levels.bulkPut([
       {
         id: 'stage0',
         name: 'stage0',
@@ -111,9 +109,4 @@ export async function initializeDatabase() {
         description: 'Advanced literary and abstract grammar.',
       },
     ]);
-
-    // Seed kana data (Stage 0)
-    const { seedKanaData } = await import('./seeds/kana');
-    await seedKanaData(db);
-  }
 }

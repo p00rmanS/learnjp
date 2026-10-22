@@ -36,6 +36,10 @@ const UNIT_GLYPHS: Record<string, string> = {
   'n5-hobbies': '趣',
   'n5-work': '仕',
   'n5-hotel': '宿',
+  'n5-body': '体',
+  'n5-house': '屋',
+  'n5-clothes': '服',
+  'n5-grammar-3': '型',
 };
 
 export default function LessonBrowser({ onBack, initialUnitId, onOpenedUnit }: LessonBrowserProps) {

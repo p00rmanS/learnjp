@@ -20,6 +20,7 @@ export default function Home() {
   const [screen, setScreen] = useState<Screen>('today');
   const [openUnitId, setOpenUnitId] = useState<string | undefined>(undefined);
   const [totalUnits, setTotalUnits] = useState(0);
+  const [lessonsVersion, setLessonsVersion] = useState(0);
 
   useEffect(() => {
     if (!user || screen !== 'today') return;
@@ -36,6 +37,7 @@ export default function Home() {
 
   function openLesson(unitId?: string) {
     setOpenUnitId(unitId);
+    setLessonsVersion((v) => v + 1);
     setScreen('lessons');
   }
 
@@ -140,6 +142,7 @@ export default function Home() {
 
         {screen === 'lessons' && (
           <LessonBrowser
+            key={lessonsVersion}
             initialUnitId={openUnitId}
             onBack={() => setScreen('today')}
             onOpenedUnit={() => setOpenUnitId(undefined)}
