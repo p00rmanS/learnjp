@@ -11,6 +11,9 @@ import type {
   ListeningClip,
   MockExam,
   ExamAttempt,
+  Activity,
+  UnitProgress,
+  Mastery,
 } from '@/types';
 
 export class MichiDB extends Dexie {
@@ -26,8 +29,19 @@ export class MichiDB extends Dexie {
   mockExams!: Table<MockExam>;
   examAttempts!: Table<ExamAttempt>;
 
+  activity!: Table<Activity>;
+  unitProgress!: Table<UnitProgress>;
+  mastery!: Table<Mastery>;
+
   constructor() {
     super('michi');
+    this.version(2).stores({
+      activity: 'date',
+      unitProgress: 'unitId',
+    });
+    this.version(3).stores({
+      mastery: 'itemId',
+    });
     this.version(1).stores({
       users: 'id',
       levels: 'id, order',
@@ -48,9 +62,10 @@ export const db = new MichiDB();
 
 // Initialize default data (levels) on first load
 export async function initializeDatabase() {
-  const count = await db.levels.count();
-  if (count === 0) {
-    await db.levels.bulkPut([
+  const { seedLessonContent } = await import('./seeds/lessons');
+  await seedLessonContent(db);
+
+  await db.levels.bulkPut([
       {
         id: 'stage0',
         name: 'stage0',
@@ -94,10 +109,4 @@ export async function initializeDatabase() {
         description: 'Advanced literary and abstract grammar.',
       },
     ]);
-  }
-
-  // Seed kana outside the levels check so older/partial databases get repaired
-  // Always upsert: cheap (142 rows) and keeps lesson content up to date
-  const { seedKanaData } = await import('./seeds/kana');
-  await seedKanaData(db);
 }

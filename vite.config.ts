@@ -2,9 +2,9 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 
-export default defineConfig({
-  // GitHub Pages serves the site from /learnjp/
-  base: '/learnjp/',
+// GitHub Pages serves the production build from /learnjp/; dev runs at the root.
+export default defineConfig(({ command }) => ({
+  base: command === 'build' ? '/learnjp/' : '/',
   plugins: [react()],
   resolve: {
     alias: {
@@ -26,4 +26,4 @@ export default defineConfig({
       },
     },
   },
-});
+}));

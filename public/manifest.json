@@ -1,11 +1,19 @@
 {
-  "name": "道 Michi — Japanese Learning",
+  "name": "Michi — Japanese, step by step",
   "short_name": "Michi",
-  "description": "A self-paced Japanese learning app from zero to JLPT N1",
+  "description": "Learn Japanese from zero to JLPT N1 with spaced repetition.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "theme_color": "#0284c7",
-  "background_color": "#ffffff"
+  "theme_color": "#F6F3EC",
+  "background_color": "#F4F1EA",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
 }

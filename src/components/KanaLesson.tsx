@@ -1,84 +1,66 @@
 import { useState } from 'react';
 import { useUserStore } from '@/stores/userStore';
-import { db } from '@/db';
-import { initializeCard } from '@/services/fsrsService';
+import { addItemsToReview } from '@/services/cards';
+import { recordXp } from '@/services/progress';
+import { speak } from '@/utils/speech';
 import type { KanaItem } from '@/types';
 
 interface KanaLessonProps {
   kana: KanaItem;
-  learned: boolean;
   onLearned: () => void;
 }
 
-export default function KanaLesson({ kana, learned, onLearned }: KanaLessonProps) {
+export default function KanaLesson({ kana, onLearned }: KanaLessonProps) {
   const { user } = useUserStore();
-  const [isSaving, setIsSaving] = useState(false);
+  const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleAdd() {
+  async function handleMarkAsLearned() {
     if (!user) return;
-    setIsSaving(true);
+    setBusy(true);
     setError(null);
-
     try {
-      const cardTypes = ['kana_reading', 'vocab_recall_typed'] as const;
-      await db.cards.bulkPut(
-        cardTypes.map((type) => ({
-          id: `card-${kana.id}-${type}`,
-          userId: user.id,
-          itemId: kana.id,
-          cardType: type,
-          fsrsState: initializeCard(),
-          createdAt: new Date(),
-        })),
-      );
+      await addItemsToReview(user.id, [kana], 'kana_reading');
+      await addItemsToReview(user.id, [kana], 'vocab_recall_typed');
+      await recordXp('kana');
       onLearned();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not save this card');
+      console.error('Failed to create cards:', err);
+      setError('Something went wrong. Please try again.');
     } finally {
-      setIsSaving(false);
+      setBusy(false);
     }
   }
 
   return (
-    <div className="card p-8 sm:p-10 text-center">
-      <div className="text-[9rem] leading-none jp-text text-ink">{kana.character}</div>
-      <div className="mt-4 text-3xl font-semibold">{kana.romaji}</div>
-      <p className="text-stone-500 mt-1">sounds like &ldquo;{kana.pronunciation}&rdquo;</p>
+    <article className="animate-rise surface p-8 text-center sm:p-14">
+      <p className="eyebrow">{kana.id.endsWith('-katakana') ? 'Katakana' : 'Hiragana'}</p>
 
-      {kana.taglish && (
-        <p className="mt-6 mx-auto max-w-md text-stone-700 leading-relaxed">{kana.taglish}</p>
-      )}
+      <div className="jp-text mt-8 text-[9rem] leading-none text-ink sm:text-[11rem]">{kana.character}</div>
 
-      {kana.mnemonic && (
-        <div className="mt-6 mx-auto max-w-md border-l-2 border-vermilion pl-4 text-left">
-          <p className="label mb-1">Paano tandaan</p>
-          <p className="text-stone-800">{kana.mnemonic}</p>
-        </div>
-      )}
-
-      {kana.tip && (
-        <div className="mt-4 mx-auto max-w-md rounded-xl bg-brand-50 border border-brand-100 p-4 text-left">
-          <p className="label mb-1 text-brand-700">Pro tip</p>
-          <p className="text-stone-800">{kana.tip}</p>
-        </div>
-      )}
-
-      {kana.strokeCount > 0 && (
-        <p className="mt-6 text-sm text-stone-500">{kana.strokeCount} stroke{kana.strokeCount === 1 ? '' : 's'}</p>
-      )}
-
-      {error && <p className="mt-4 text-sm text-red-700">{error}</p>}
-
-      <div className="mt-8">
-        {learned ? (
-          <p className="text-sm text-stone-500">Added to your reviews</p>
-        ) : (
-          <button onClick={handleAdd} disabled={isSaving} className="btn-primary">
-            {isSaving ? 'Saving' : 'Add to my reviews'}
-          </button>
-        )}
+      <div className="mt-8 flex items-center justify-center gap-4">
+        <span className="text-2xl italic text-ai-600">{kana.romaji}</span>
+        <button
+          onClick={() => speak(kana.character)}
+          className="h-10 w-10 rounded-full text-ink-2 ring-1 ring-ink-line transition hover:bg-paper-deep hover:text-ink"
+          aria-label={`Listen to ${kana.romaji}`}
+        >
+          ▶
+        </button>
       </div>
-    </div>
+      <p className="mt-2 text-sm text-ink-3">Say it like: {kana.pronunciation}</p>
+
+      <blockquote className="mx-auto mt-10 max-w-md rounded-2xl bg-paper-deep/60 p-6 text-left">
+        <p className="eyebrow">Memory trick</p>
+        <p className="mt-2 text-[15px] leading-relaxed text-ink-2">{kana.mnemonic}</p>
+      </blockquote>
+
+      {error && <p className="mt-6 text-sm text-shu-600">{error}</p>}
+
+      <button onClick={handleMarkAsLearned} disabled={busy} className="btn-ink mt-10 px-8 py-4 text-base">
+        {busy ? 'Saving…' : 'I know this one'}
+      </button>
+      <p className="mt-4 text-xs text-ink-3">Adds two review cards so it comes back when you need it.</p>
+    </article>
   );
 }

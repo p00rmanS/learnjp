@@ -9,7 +9,14 @@ export interface User {
 }
 
 // Levels
-export type LevelName = 'stage0' | 'n5' | 'n4' | 'n3' | 'n2' | 'n1';
+export type LevelName = 'stage0' | 'n5' | 'n4' | 'n3' | 'n2' | 'n1' | 'kanji';
+
+// Course mastery: a character is mastered after three correct answers in a row.
+export interface Mastery {
+  itemId: string;
+  streak: number;
+  updatedAt: Date;
+}
 
 export interface Level {
   id: string;
@@ -20,6 +27,24 @@ export interface Level {
 }
 
 // Units
+export interface LessonGuide {
+  intro: string;
+  pronunciation: string;
+  proTip: string;
+}
+
+export interface StoryLine {
+  japanese: string;
+  romaji: string;
+  english: string;
+  tl: string;
+}
+
+export interface Story {
+  title: string;
+  lines: StoryLine[];
+}
+
 export interface Unit {
   id: string;
   levelId: string;
@@ -27,6 +52,8 @@ export interface Unit {
   title: string;
   theme: string;
   description?: string;
+  guide?: LessonGuide;
+  story?: Story;
 }
 
 // Items (learnable things: kana, kanji, vocab, grammar)
@@ -48,9 +75,7 @@ export interface KanaItem extends BaseItem {
   pronunciation: string;
   strokeCount: number;
   mnemonic?: string;
-  /** Taglish explanation of the sound and how to say it */
   taglish?: string;
-  /** One practical tip (look-alikes, writing order, usage) */
   tip?: string;
   audioUrl?: string;
 }
@@ -72,7 +97,9 @@ export interface VocabItem extends BaseItem {
   type: 'vocab';
   kana: string;
   kanji?: string;
+  romaji: string;
   meanings: string[];
+  tl?: string;
   partOfSpeech: string;
   mnemonic?: string;
   audioUrl?: string;
@@ -209,6 +236,20 @@ export interface ExamAttempt {
   completedAt?: Date;
   answers: Record<string, number>;
   scores: Record<string, number>;
+}
+
+// Growth: one row per local calendar day that had any activity
+export interface Activity {
+  date: string; // YYYY-MM-DD
+  xp: number;
+  reviews: number;
+  lessons: number;
+}
+
+export interface UnitProgress {
+  unitId: string;
+  completedAt: Date;
+  bestScore: number;
 }
 
 // Sync metadata (for offline-first)

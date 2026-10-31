@@ -1,255 +1,249 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { db } from '@/db';
-import { useUserStore } from '@/stores/userStore';
+import { useArrowKeys } from '@/utils/keyboard';
 import KanaLesson from './KanaLesson';
-import ConceptLessons from './ConceptLessons';
-import UnitQuiz from './UnitQuiz';
-import { conceptLessons } from '@/db/seeds/concepts';
-import { n5Lessons, n4Lessons } from '@/db/seeds/grammarN5N4';
-import { n3Lessons, n2Lessons, n1Lessons } from '@/db/seeds/grammarN3N1';
-import { kanaItems } from '@/db/seeds/kana';
-import { HIRAGANA_UNIT_ORDERS } from '@/db/seeds/yoon';
-import type { Unit, KanaItem } from '@/types';
+import UnitLesson from './UnitLesson';
+import type { Item, KanaItem, Level, Unit } from '@/types';
 
-type Script = 'hiragana' | 'katakana' | 'concepts' | 'n5' | 'n4' | 'n3' | 'n2' | 'n1';
-
-const LEVELS = {
-  n5: { lessons: n5Lessons, intro: 'N5: ang mga batayan. Greetings, です, particles, pandiwa at adjective.' },
-  n4: { lessons: n4Lessons, intro: 'N4: mga anyo ng pandiwa, karanasan, pahintulot, dahilan at kondisyon.' },
-  n3: { lessons: n3Lessons, intro: 'N3: passive, causative at mga salitang nag-uugnay ng lohika.' },
-  n2: { lessons: n2Lessons, intro: 'N2: pormal na pananalita at mga pattern sa balita at ulat.' },
-  n1: { lessons: n1Lessons, intro: 'N1: mga pattern na literary at abstract.' },
-} as const;
-type LevelKey = keyof typeof LEVELS;
-
-const SCRIPT_TABS: Script[] = ['hiragana', 'katakana', 'concepts', 'n5', 'n4', 'n3', 'n2', 'n1'];
-
-function tabLabel(s: Script): string {
-  if (s === 'hiragana') return 'Hiragana';
-  if (s === 'katakana') return 'Katakana';
-  if (s === 'concepts') return 'Concepts';
-  return s.toUpperCase();
+interface LessonBrowserProps {
+  onBack: () => void;
+  initialUnitId?: string;
+  onOpenedUnit?: () => void;
 }
 
-// Teaching order follows the seed file, not the database's id ordering
-const SEED_ORDER = new Map(kanaItems.map((k, i) => [k.id, i]));
+interface UnitSummary extends Unit {
+  count: number;
+}
 
-export default function LessonBrowser() {
-  const { user } = useUserStore();
-  const [script, setScript] = useState<Script>('hiragana');
-  const [units, setUnits] = useState<Unit[]>([]);
-  const [kanaByUnit, setKanaByUnit] = useState<Record<string, KanaItem[]>>({});
-  const [learnedIds, setLearnedIds] = useState<Set<string>>(new Set());
-  const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
-  const [index, setIndex] = useState(0);
-  const [quizzing, setQuizzing] = useState(false);
+const UNIT_GLYPHS: Record<string, string> = {
+  'n5-greetings': '挨',
+  'n5-daily': '話',
+  'n5-fillers': '間',
+  'n5-restaurant': '食',
+  'n5-shopping': '買',
+  'n5-directions': '道',
+  'n5-numbers': '数',
+  'n5-time': '時',
+  'n5-food': '飲',
+  'n5-transport': '車',
+  'n5-help': '助',
+  'n5-family': '家',
+  'n5-verbs': '動',
+  'n5-grammar': '文',
+  'n5-grammar-2': '法',
+  'n5-adjectives': '形',
+  'n5-weather': '天',
+  'n5-hobbies': '趣',
+  'n5-work': '仕',
+  'n5-hotel': '宿',
+  'n5-body': '体',
+  'n5-house': '屋',
+  'n5-clothes': '服',
+  'n5-grammar-3': '型',
+  'n5-classroom': '室',
+  'n5-sightseeing': '旅',
+  'n5-market': '市',
+  'n5-feelings': '情',
+};
+
+export default function LessonBrowser({ onBack, initialUnitId, onOpenedUnit }: LessonBrowserProps) {
+  const [levels, setLevels] = useState<Level[]>([]);
+  const [units, setUnits] = useState<UnitSummary[]>([]);
+  const [selected, setSelected] = useState<UnitSummary | null>(null);
+  const [items, setItems] = useState<Item[]>([]);
+  const [kanaIndex, setKanaIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-
-  const load = useCallback(async () => {
-    try {
-      const allUnits = await db.units.where('levelId').equals('stage0').toArray();
-      allUnits.sort((a, b) => a.order - b.order);
-      const kana = (await db.items.where('type').equals('kana').toArray()) as KanaItem[];
-      const grouped: Record<string, KanaItem[]> = {};
-      for (const k of kana) (grouped[k.unitId] ||= []).push(k);
-      for (const list of Object.values(grouped)) {
-        list.sort((a, b) => (SEED_ORDER.get(a.id) ?? 0) - (SEED_ORDER.get(b.id) ?? 0));
-      }
-
-      const cards = user ? await db.cards.where('userId').equals(user.id).toArray() : [];
-      setUnits(allUnits);
-      setKanaByUnit(grouped);
-      setLearnedIds(new Set(cards.map((c) => c.itemId)));
-    } catch (error) {
-      console.error('Failed to load lessons:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [user]);
+  const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    load();
-  }, [load]);
+    (async () => {
+      const [allLevels, allUnits, completed] = await Promise.all([
+        db.levels.toArray(),
+        db.units.toArray(),
+        db.unitProgress.toArray(),
+      ]);
+      const summaries = await Promise.all(
+        allUnits.map(async (unit) => ({
+          ...unit,
+          count: await db.items.where('unitId').equals(unit.id).count(),
+        })),
+      );
+      setCompletedIds(new Set(completed.map((c) => c.unitId)));
+      setLevels(allLevels.sort((a, b) => a.order - b.order));
+      setUnits(summaries);
+      setIsLoading(false);
+    })().catch((error) => {
+      console.error('Failed to load lessons:', error);
+      setIsLoading(false);
+    });
+  }, []);
 
-  if (isLoading) {
-    return <p className="text-stone-500">Loading lessons</p>;
+  const grouped = useMemo(
+    () =>
+      levels
+        .filter((level) => level.id !== 'kanji')
+        .map((level) => ({
+          level,
+          units: units.filter((u) => u.levelId === level.id).sort((a, b) => a.order - b.order),
+        }))
+        .filter((group) => group.units.length > 0),
+    [levels, units],
+  );
+
+  const flatUnits = useMemo(() => grouped.flatMap((g) => g.units), [grouped]);
+
+  useEffect(() => {
+    if (!initialUnitId || isLoading) return;
+    const unit = units.find((u) => u.id === initialUnitId);
+    if (unit) openUnit(unit);
+    onOpenedUnit?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialUnitId, isLoading]);
+
+  async function openUnit(unit: UnitSummary) {
+    const unitItems = (await db.items.where('unitId').equals(unit.id).toArray()).sort(
+      (a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
+    );
+    setItems(unitItems);
+    setKanaIndex(0);
+    setSelected(unit);
+    window.scrollTo({ top: 0 });
   }
 
-  const selectedUnit = units.find((u) => u.id === selectedUnitId);
+  const selectedPos = selected ? flatUnits.findIndex((u) => u.id === selected.id) : -1;
+  const prevUnit = selectedPos > 0 ? flatUnits[selectedPos - 1] : undefined;
+  const nextUnit = selectedPos >= 0 && selectedPos < flatUnits.length - 1 ? flatUnits[selectedPos + 1] : undefined;
 
-  // ---- Quick check at the end of a unit ----
-  if (selectedUnit && quizzing) {
-    const isHira = HIRAGANA_UNIT_ORDERS.includes(selectedUnit.order);
-    const pool = units
-      .filter((u) => HIRAGANA_UNIT_ORDERS.includes(u.order) === isHira)
-      .flatMap((u) => kanaByUnit[u.id] ?? []);
+  const kanaMode = selected?.levelId === 'stage0';
+  useArrowKeys(
+    kanaMode ? () => setKanaIndex((i) => Math.max(0, i - 1)) : undefined,
+    kanaMode ? () => setKanaIndex((i) => Math.min(items.length - 1, i + 1)) : undefined,
+    Boolean(kanaMode),
+  );
+
+  if (isLoading) {
+    return <div className="surface p-8 text-center text-ink-3">Nilo-load ang mga lesson…</div>;
+  }
+
+  if (selected && !kanaMode) {
     return (
-      <UnitQuiz
-        unitTitle={selectedUnit.title}
-        items={kanaByUnit[selectedUnit.id] ?? []}
-        pool={pool}
-        onDone={() => {
-          setQuizzing(false);
-          setSelectedUnitId(null);
+      <UnitLesson
+        unit={selected}
+        items={items}
+        onBack={() => setSelected(null)}
+        prevUnit={prevUnit}
+        nextUnit={nextUnit}
+        onNavigate={(unit) => {
+          const target = flatUnits.find((u) => u.id === unit.id);
+          if (target) openUnit(target);
         }}
       />
     );
   }
 
-  // ---- Single kana lesson ----
-  if (selectedUnit) {
-    const list = kanaByUnit[selectedUnit.id] ?? [];
-    const current = list[index];
-    const isLast = index === list.length - 1;
+  if (selected) {
+    const kana = items as KanaItem[];
+    const current = kana[kanaIndex];
+    const isLast = kanaIndex === kana.length - 1;
+    const finish = () => setSelected(null);
 
     return (
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <button onClick={() => setSelectedUnitId(null)} className="btn-ghost -ml-3">
-            Back to lessons
+          <button onClick={finish} className="link-back">
+            ← All lessons
           </button>
-          <span className="text-sm text-stone-500 tabular-nums">
-            {index + 1} / {list.length}
+          <span className="text-sm tabular-nums text-ink-3">
+            {kanaIndex + 1} / {kana.length}
           </span>
         </div>
 
-        <p className="label">{selectedUnit.title}</p>
+        {current && <KanaLesson kana={current} onLearned={() => (isLast ? finish() : setKanaIndex(kanaIndex + 1))} />}
 
-        {/* Character strip: jump to any kana in the unit */}
-        <div className="flex flex-wrap gap-1.5">
-          {list.map((k, i) => (
-            <button
-              key={k.id}
-              onClick={() => setIndex(i)}
-              aria-label={k.romaji}
-              className={`w-10 h-10 rounded-lg jp-text text-lg border transition-colors ${
-                i === index
-                  ? 'bg-brand-600 border-brand-600 text-white'
-                  : learnedIds.has(k.id)
-                    ? 'bg-brand-50 border-brand-200 text-brand-700'
-                    : 'bg-white border-stone-200 text-stone-700 hover:border-stone-400'
-              }`}
-            >
-              {k.character}
+        <div className="flex gap-3">
+          {kanaIndex > 0 && (
+            <button onClick={() => setKanaIndex(kanaIndex - 1)} className="btn-quiet flex-1">
+              Previous
             </button>
-          ))}
-        </div>
-
-        {current && (
-          <KanaLesson
-            key={current.id}
-            kana={current}
-            learned={learnedIds.has(current.id)}
-            onLearned={async () => {
-              await load();
-              if (!isLast) setIndex(index + 1);
-            }}
-          />
-        )}
-
-        <div className="flex gap-2">
-          <button onClick={() => setIndex(index - 1)} disabled={index === 0} className="btn-secondary flex-1">
-            Previous
-          </button>
-          {isLast ? (
-            <button onClick={() => setQuizzing(true)} className="btn-primary flex-1">
-              Take quick check
-            </button>
-          ) : (
-            <button onClick={() => setIndex(index + 1)} className="btn-secondary flex-1">
-              Next
+          )}
+          {!isLast && (
+            <button onClick={() => setKanaIndex(kanaIndex + 1)} className="btn-quiet flex-1">
+              Skip
             </button>
           )}
         </div>
+        <p className="text-center text-xs text-ink-3">
+          Gamitin ang <kbd className="rounded border border-ink-line px-1.5 py-0.5">←</kbd>{' '}
+          <kbd className="rounded border border-ink-line px-1.5 py-0.5">→</kbd> para lumipat ng card.
+        </p>
       </div>
     );
   }
 
-  // ---- Unit list ----
-  const visible = units.filter((u) => HIRAGANA_UNIT_ORDERS.includes(u.order) === (script === 'hiragana'));
-  const showConcepts = script === 'concepts';
-  const level = script in LEVELS ? LEVELS[script as LevelKey] : null;
+  let counter = 0;
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Lessons</h1>
-        <p className="text-stone-500 mt-1">Kana first, then grammar from N5 to N1.</p>
+    <div className="space-y-16">
+      <div className="max-w-2xl">
+        <button onClick={onBack} className="link-back">
+          ← Bumalik sa Today
+        </button>
+        <p className="eyebrow mt-10">Curriculum</p>
+        <h2 className="display mt-3 text-5xl">Mga Lesson</h2>
+        <p className="mt-5 text-[15px] leading-relaxed text-ink-2">
+          Bawat unit ay may pagpapakilala ng teacher, gabay sa pagbigkas, pro tip, maikling kwento na may romaji at
+          English, at practice. Pindutin ang ▶ para marinig ang bawat salita.
+        </p>
       </div>
 
-      <div className="flex p-1 bg-stone-200/70 rounded-lg overflow-x-auto max-w-full w-fit" role="tablist">
-        {SCRIPT_TABS.map((s) => (
-          <button
-            key={s}
-            role="tab"
-            aria-selected={script === s}
-            onClick={() => setScript(s)}
-            className={`px-3 sm:px-4 py-1.5 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${
-              script === s ? 'bg-white shadow-sm text-ink' : 'text-stone-600'
-            }`}
-          >
-            {(s === 'hiragana' || s === 'katakana') && <span className="jp-text mr-1.5">{s === 'hiragana' ? 'あ' : 'ア'}</span>}
-            {tabLabel(s)}
-          </button>
-        ))}
-      </div>
+      {grouped.map(({ level, units: levelUnits }) => (
+        <section key={level.id}>
+          <div className="flex items-baseline justify-between gap-6 border-b border-ink pb-3">
+            <h3 className="display text-2xl">{level.title}</h3>
+            <p className="hidden text-sm text-ink-3 sm:block">{level.description}</p>
+          </div>
 
-      {showConcepts && (
-        <ConceptLessons
-          lessons={conceptLessons}
-          storageKey="michi-concepts-read"
-          intro="Short lessons on how Japanese works. Basahin habang nag-aaral ng kana."
-        />
-      )}
-      {level && (
-        <ConceptLessons
-          key={script}
-          lessons={level.lessons}
-          storageKey={`michi-${script}-read`}
-          intro={level.intro}
-          noun="Lesson"
-        />
-      )}
-
-      <ul className="space-y-3">
-        {!showConcepts && !level && visible.map((unit, n) => {
-          const list = kanaByUnit[unit.id] ?? [];
-          const done = list.filter((k) => learnedIds.has(k.id)).length;
-          return (
-            <li key={unit.id}>
-              <button
-                onClick={() => {
-                  setSelectedUnitId(unit.id);
-                  setIndex(Math.max(0, list.findIndex((k) => !learnedIds.has(k.id))));
-                }}
-                disabled={list.length === 0}
-                className="card w-full p-5 text-left hover:border-brand-500 transition-colors disabled:opacity-50"
-              >
-                <div className="flex items-baseline justify-between gap-4">
-                  <div>
-                    <p className="label">Lesson {n + 1}</p>
-                    <h2 className="text-lg font-semibold jp-text mt-0.5">{unit.title}</h2>
-                  </div>
-                  <span className="text-sm text-stone-500 tabular-nums shrink-0">
-                    {done} / {list.length}
-                  </span>
-                </div>
-                <div className="mt-3 flex flex-wrap gap-1 jp-text text-xl text-stone-400">
-                  {list.map((k) => (
-                    <span key={k.id} className={learnedIds.has(k.id) ? 'text-brand-600' : ''}>
-                      {k.character}
+          <ol className="divide-y divide-ink-line">
+            {levelUnits.map((unit) => {
+              const number = level.id === 'stage0' ? null : String(++counter).padStart(2, '0');
+              return (
+                <li key={unit.id}>
+                  <button
+                    onClick={() => openUnit(unit)}
+                    className="group grid w-full grid-cols-[3rem_1fr_auto] items-center gap-4 py-5 text-left transition hover:bg-paper-deep/50 sm:grid-cols-[4rem_3rem_1fr_auto] sm:gap-6 sm:px-2"
+                  >
+                    <span className="display tabular-nums text-2xl text-ink-3 group-hover:text-ai-600">
+                      {number ?? '—'}
                     </span>
-                  ))}
-                </div>
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-
-      {!showConcepts && !level && visible.length === 0 && (
-        <div className="card p-6 text-center text-stone-500">No lessons found. Try reloading the page.</div>
-      )}
+                    <span
+                      className="jp-text hidden text-xl text-ink-2 sm:block"
+                      aria-hidden="true"
+                    >
+                      {UNIT_GLYPHS[unit.id] ?? '日'}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block font-display text-[1.25rem] leading-snug text-ink group-hover:text-ai-600">
+                        {unit.title}
+                      </span>
+                      <span className="mt-1 block text-sm text-ink-2">{unit.theme}</span>
+                      <span className="mt-2 flex flex-wrap items-center gap-x-3 text-xs text-ink-3">
+                        <span className="tabular-nums">
+                          {unit.count} {unit.levelId === 'stage0' ? 'characters' : 'items'}
+                        </span>
+                        {unit.story && <span className="text-ai-600">Kwento</span>}
+                        {completedIds.has(unit.id) && <span className="font-semibold text-matcha-500">Tapos na</span>}
+                      </span>
+                    </span>
+                    <span className="text-ink-3 transition group-hover:translate-x-1 group-hover:text-ai-600" aria-hidden="true">
+                      →
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
+        </section>
+      ))}
     </div>
   );
 }

@@ -3,50 +3,98 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
-    @apply bg-paper text-ink font-sans;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    @apply bg-paper font-ui text-ink antialiased;
+  }
+
+  ::selection {
+    @apply bg-ai-100 text-ai-800;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-ai-500 ring-offset-2 ring-offset-paper;
+  }
+
+  kbd {
+    @apply font-ui text-xs;
   }
 }
 
 @layer components {
-  .btn {
-    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg font-medium text-sm
-      transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2
-      disabled:opacity-40 disabled:cursor-not-allowed;
+  .eyebrow {
+    @apply text-[11px] font-semibold uppercase tracking-eyebrow text-ink-3;
   }
-  .btn-primary {
-    @apply btn bg-brand-600 text-white hover:bg-brand-700;
+
+  .display {
+    @apply font-display font-medium tracking-tight text-ink;
   }
-  .btn-secondary {
-    @apply btn bg-white text-ink border border-stone-300 hover:bg-stone-100;
+
+  .surface {
+    @apply rounded-[4px] border border-ink-line bg-paper-card;
   }
-  .btn-ghost {
-    @apply btn text-stone-600 hover:bg-stone-200/60 px-3;
+
+  .btn-ink {
+    @apply inline-flex items-center justify-center gap-2 rounded-[3px] bg-ink px-6 py-3 text-[14px] font-semibold tracking-wide text-paper-card transition duration-200 hover:bg-ai-700 disabled:cursor-not-allowed disabled:opacity-40;
   }
-  .card {
-    @apply bg-white border border-stone-200 rounded-xl;
+
+  .btn-quiet {
+    @apply inline-flex items-center justify-center gap-2 rounded-[3px] border border-ink-line px-5 py-3 text-[14px] font-medium text-ink transition duration-200 hover:border-ink hover:bg-paper-deep disabled:opacity-40;
   }
-  .label {
-    @apply text-xs font-medium uppercase tracking-wider text-stone-500;
+
+  .link-back {
+    @apply inline-flex items-center gap-2 text-sm font-medium text-ink-2 underline-offset-4 transition hover:text-ai-600 hover:underline;
   }
+
+  .hanko {
+    @apply inline-flex items-center justify-center rounded-[2px] bg-shu-500 font-kanji font-bold text-paper-card;
+  }
+
   .jp-text {
     @apply font-jp;
   }
+
+  .card {
+    @apply surface;
+  }
+
+  .btn-primary {
+    @apply btn-ink;
+  }
+
+  .btn-secondary {
+    @apply btn-quiet;
+  }
 }
 
-/* Furigana styling */
-ruby {
-  @apply jp-text;
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-rt {
-  @apply text-xs font-light jp-text;
-  display: ruby;
+.animate-rise {
+  animation: rise 420ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
-/* Japanese input IME styling */
-.ime-input {
-  @apply border-2 border-brand-500 rounded px-2 py-1;
+.vertical-jp {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
 }
