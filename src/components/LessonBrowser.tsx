@@ -44,6 +44,8 @@ const UNIT_GLYPHS: Record<string, string> = {
   'n5-sightseeing': '旅',
   'n5-market': '市',
   'n5-feelings': '情',
+  'n5-visit': '訪',
+  'n5-cooking': '厨',
 };
 
 export default function LessonBrowser({ onBack, initialUnitId, onOpenedUnit }: LessonBrowserProps) {

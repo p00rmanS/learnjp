@@ -11,6 +11,7 @@ import { n5Extra3Grammar, n5Extra3Guides, n5Extra3Stories, n5Extra3Units, n5Extr
 import { vocabTaglish3 } from './vocabTaglish3';
 import { n5Extra4Guides, n5Extra4Stories, n5Extra4Units, n5Extra4Vocab, vocabTaglish4 } from './lessons-extra4';
 import { n5Extra5Guides, n5Extra5Stories, n5Extra5Units, n5Extra5Vocab, vocabTaglish5 } from './lessons-extra5';
+import { n5Extra6Guides, n5Extra6Stories, n5Extra6Units, n5Extra6Vocab, vocabTaglish6 } from './lessons-extra6';
 import { unitGuides, unitStories } from './lessonStories';
 import { vocabTaglish } from './vocabTaglish';
 import { kanaTaglish } from './kanaTaglish';
@@ -204,7 +205,8 @@ function localize(item: Item): Item {
         vocabTaglish2[item.id] ??
         vocabTaglish3[item.id] ??
         vocabTaglish4[item.id] ??
-        vocabTaglish5[item.id],
+        vocabTaglish5[item.id] ??
+        vocabTaglish6[item.id],
     };
   }
   if (item.type === 'grammar') {
@@ -227,10 +229,23 @@ export async function seedLessonContent(db: MichiDB) {
     ...n5Extra3Units,
     ...n5Extra4Units,
     ...n5Extra5Units,
+    ...n5Extra6Units,
   ].map((unit) => ({
     ...unit,
-    guide: unitGuides[unit.id] ?? n5Extra2Guides[unit.id] ?? n5Extra3Guides[unit.id] ?? n5Extra4Guides[unit.id] ?? n5Extra5Guides[unit.id],
-    story: unitStories[unit.id] ?? n5Extra2Stories[unit.id] ?? n5Extra3Stories[unit.id] ?? n5Extra4Stories[unit.id] ?? n5Extra5Stories[unit.id],
+    guide:
+      unitGuides[unit.id] ??
+      n5Extra2Guides[unit.id] ??
+      n5Extra3Guides[unit.id] ??
+      n5Extra4Guides[unit.id] ??
+      n5Extra5Guides[unit.id] ??
+      n5Extra6Guides[unit.id],
+    story:
+      unitStories[unit.id] ??
+      n5Extra2Stories[unit.id] ??
+      n5Extra3Stories[unit.id] ??
+      n5Extra4Stories[unit.id] ??
+      n5Extra5Stories[unit.id] ??
+      n5Extra6Stories[unit.id],
   }));
   await db.levels.put({
     id: 'kanji',
@@ -254,6 +269,7 @@ export async function seedLessonContent(db: MichiDB) {
     ...n5Extra3Grammar,
     ...n5Extra4Vocab,
     ...n5Extra5Vocab,
+    ...n5Extra6Vocab,
   ];
   await db.items.bulkPut(withSeedOrder(allItems.map(localize)));
 }
