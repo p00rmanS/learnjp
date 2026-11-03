@@ -1,6 +1,7 @@
 import type { GrammarItem, Item, Unit, VocabItem } from '@/types';
 import type { MichiDB } from '@/db';
 import { kanaItems, katakanaItems, stage0Units } from './kana';
+import { hiraganaYoon, katakanaYoon, yoonUnits } from './yoon';
 import { withSeedOrder } from './order';
 import { phrase } from './factory';
 import { n5MoreGrammar, n5MoreUnits, n5MoreVocab } from './lessons-more';
@@ -273,10 +274,12 @@ export async function seedLessonContent(db: MichiDB) {
     guide: pundasyonGuides[unit.id],
     story: pundasyonStories[unit.id],
   }));
-  await db.units.bulkPut([...stage0Units, ...n5All, ...kanjiUnits, ...pundasyonAll]);
+  await db.units.bulkPut([...stage0Units, ...yoonUnits, ...n5All, ...kanjiUnits, ...pundasyonAll]);
   const allItems: Item[] = [
     ...kanaItems,
     ...katakanaItems,
+    ...hiraganaYoon,
+    ...katakanaYoon,
     ...n5Vocab,
     ...n5Grammar,
     ...n5MoreVocab,

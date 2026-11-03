@@ -107,4 +107,14 @@ export const vocabTaglishPun: Record<string, string> = {
   'vocab-pa-kyoukasho': 'Aklat-aralin.',
   'vocab-pa-jikanwari': 'Iskedyul ng klase.',
   'vocab-pa-hon': 'Aklat o libro.',
+
+  // Toys
+  'vocab-pt-omocha': 'Laruan sa pangkalahatan. Kapag hindi mo alam ang pangalan ng laruan, ito ang gamitin.',
+  'vocab-pt-ningyou': 'Manika o doll. Ang tradisyonal na manika ay makikita sa Hina Matsuri, tuwing Marso 3.',
+  'vocab-pt-tako': 'Saranggola. Magkapareho ang tunog ng "tako" na pugita, pero iba ang kanji. Ang konteksto ang magsasabi.',
+  'vocab-pt-koma': 'Spinning top. Pinapaikot gamit ang kamay o sinulid.',
+  'vocab-pt-taiko': 'Drum. Kilala bilang tradisyonal na instrumento sa Japan, pero laruan din ng mga bata.',
+  'vocab-pt-burokku': 'Building blocks. Galing sa English na "block".',
+  'vocab-pt-ehon': 'Picture book. Ang "e" ay larawan at ang "hon" ay libro.',
+  'vocab-pt-asobu': 'Maglaro. Ginagamit din sa kahulugan ng "magsaya" o "tumambay".',
 };

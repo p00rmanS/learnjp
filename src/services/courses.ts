@@ -17,13 +17,13 @@ export const COURSES: CourseDef[] = [
     id: 'hiragana',
     title: 'Hiragana',
     subtitle: 'Ang pangunahing alpabeto ng Japanese. Dito magsisimula ang lahat.',
-    unitIds: ['stage0-u1', 'stage0-u2', 'stage0-u3', 'stage0-u4', 'stage0-u5', 'stage0-u6'],
+    unitIds: ['stage0-u1', 'stage0-u2', 'stage0-u3', 'stage0-u4', 'stage0-u5', 'stage0-u6', 'stage0-u13', 'stage0-u14', 'stage0-u15'],
   },
   {
     id: 'katakana',
     title: 'Katakana',
     subtitle: 'Ginagamit sa mga banyagang salita, pangalan, at tunog ng ibang wika.',
-    unitIds: ['stage0-u7', 'stage0-u8', 'stage0-u9', 'stage0-u10', 'stage0-u11', 'stage0-u12'],
+    unitIds: ['stage0-u7', 'stage0-u8', 'stage0-u9', 'stage0-u10', 'stage0-u11', 'stage0-u12', 'stage0-u16', 'stage0-u17', 'stage0-u18'],
   },
   {
     id: 'kanji',

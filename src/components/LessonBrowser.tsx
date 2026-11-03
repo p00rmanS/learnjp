@@ -55,6 +55,7 @@ const UNIT_GLYPHS: Record<string, string> = {
   'pun-kulay': '彩',
   'pun-hugis': '図',
   'pun-paaralan': '学',
+  'pun-laruan': '遊',
 };
 
 export default function LessonBrowser({ onBack, initialUnitId, onOpenedUnit }: LessonBrowserProps) {

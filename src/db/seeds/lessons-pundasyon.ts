@@ -19,6 +19,7 @@ export const pundasyonUnits: Unit[] = [
   { id: 'pun-kulay', levelId: 'pundasyon', order: 7, title: 'Mga Kulay', theme: 'Pula, asul, dilaw, at lahat ng kulay ng bahaghari' },
   { id: 'pun-hugis', levelId: 'pundasyon', order: 8, title: 'Mga Hugis', theme: 'Bilog, tatsulok, parisukat, at bituin' },
   { id: 'pun-paaralan', levelId: 'pundasyon', order: 9, title: 'Gamit sa Paaralan', theme: 'Lapis, pambura, gunting, at aklat' },
+  { id: 'pun-laruan', levelId: 'pundasyon', order: 10, title: 'Mga Laruan', theme: 'Manika, saranggola, at mga laruan na nilalaro ng bata' },
 ];
 
 const KT = 'pun-katawan';
@@ -30,6 +31,7 @@ const HY = 'pun-hayop';
 const KL = 'pun-kulay';
 const HU = 'pun-hugis';
 const PA = 'pun-paaralan';
+const TY = 'pun-laruan';
 
 export const pundasyonVocab: VocabItem[] = [
   phrase(KT, 'pk-yubi', 'ゆび', 'yubi', ['finger'], '指'),
@@ -130,6 +132,15 @@ export const pundasyonVocab: VocabItem[] = [
   phrase(PA, 'pa-kyoukasho', 'きょうかしょ', 'kyoukasho', ['textbook'], '教科書'),
   phrase(PA, 'pa-jikanwari', 'じかんわり', 'jikanwari', ['class schedule'], '時間割'),
   phrase(PA, 'pa-hon', 'ほん', 'hon', ['book'], '本'),
+
+  phrase(TY, 'pt-omocha', 'おもちゃ', 'omocha', ['toy'], '玩具'),
+  phrase(TY, 'pt-ningyou', 'にんぎょう', 'ningyou', ['doll'], '人形'),
+  phrase(TY, 'pt-tako', 'たこ', 'tako', ['kite'], '凧'),
+  phrase(TY, 'pt-koma', 'こま', 'koma', ['spinning top'], '独楽'),
+  phrase(TY, 'pt-taiko', 'たいこ', 'taiko', ['drum'], '太鼓'),
+  phrase(TY, 'pt-burokku', 'ブロック', 'burokku', ['building blocks']),
+  phrase(TY, 'pt-ehon', 'えほん', 'ehon', ['picture book'], '絵本'),
+  phrase(TY, 'pt-asobu', 'あそぶ', 'asobu', ['to play'], '遊ぶ'),
 ];
 
 export const pundasyonGuides: Record<string, LessonGuide> = {
@@ -177,6 +188,11 @@ export const pundasyonGuides: Record<string, LessonGuide> = {
     intro: "Papasok na sa paaralan! Ano ang mga gamit mo sa klase? Alamin natin ang pangalan nila sa Japanese.",
     pronunciation: "Ang 'enpitsu' ay 'en-pee-tsoo'. Ang 'keshigomu' ay 'keh-shee-goh-moo'. Ang 'hasami' ay 'hah-sah-mee'.",
     proTip: "Ihanda ang mga gamit sa bag bago matulog at sabihin ang pangalan ng bawat isa. Ganyan din ang ginagawa ng mga bata sa Japan.",
+  },
+  'pun-laruan': {
+    intro: 'Ano ang paborito mong laruan? Sa araw na ito, matututunan natin ang pangalan ng mga laruan at ang salitang "maglaro". Ituro ang laruan mo habang sinasabi ang pangalan nito.',
+    pronunciation: "Ang 'omocha' ay 'oh-moh-chah'. Ang 'ningyou' ay 'nin-gyoh', at ang 'gyo' ay isang pantig lang.",
+    proTip: 'Hawakan ang laruan habang sinasabi ang pangalan nito. Ang salitang kasama ng galaw at hawak ay mas madaling tandaan.',
   },
 };
 
@@ -262,6 +278,15 @@ export const pundasyonStories: Record<string, Story> = {
       { japanese: 'きょうかしょをよみます。', romaji: 'Kyoukasho o yomimasu.', english: 'I read the textbook.', tl: 'Nagbabasa ako ng aklat-aralin.' },
     ],
   },
+  'pun-laruan': {
+    title: 'Maglaro Tayo',
+    lines: [
+      { japanese: 'これは、おもちゃです。', romaji: 'Kore wa, omocha desu.', english: 'This is a toy.', tl: 'Laruan ito. Ang "omocha" ay laruan sa pangkalahatan.' },
+      { japanese: 'いっしょに、あそびましょう。', romaji: 'Issho ni, asobimashou.', english: "Let's play together.", tl: 'Maglaro tayo nang magkasama. Ang "asobimashou" ay pag-aya na maglaro tayo.' },
+      { japanese: 'たこをあげましょう。', romaji: 'Tako o agemashou.', english: "Let's fly a kite.", tl: 'Magpalipad tayo ng saranggola. Ang "tako" dito ay saranggola.' },
+      { japanese: 'たのしいですね！', romaji: 'Tanoshii desu ne!', english: "That's fun, isn't it!", tl: 'Masaya, di ba! Ang "tanoshii" ay masaya.' },
+    ],
+  },
 };
 
 const L = (kind: LessonSection['kind'], title: string, body: string): LessonSection => ({ kind, title, body });
@@ -320,5 +345,11 @@ export const pundasyonSections: Record<string, LessonSection[]> = {
     L('tip', 'Tip & trick', 'Ihanda ang gamit sa bag bago matulog at sabihin ang pangalan ng bawat isa. Ang nakasanayan ay nagpapatatag ng alaala.'),
     L('remember', 'Tandaan natin', 'Enpitsu = lapis, ginagamit sa pagsulat ng numero at letra. Keshigomu = pambura: "keshi" ay burahin, "gomu" ay goma.'),
     L('local', 'Sabi ng mga lokal', 'Sa Japan, madalas may dalang maliit na pamunas at panyo ang estudyante. Ang bawat bata ay may "fudebako" (pencil case) na madalas magarbo o may disenyo.'),
+  ],
+  'pun-laruan': [
+    L('explain', 'Paliwanag', 'Ang "omocha" ay salitang pangkalahatan para sa laruan. Kapag alam mo ang pangalan ng partikular na laruan, gamitin ito: "koma", "taiko", "ehon". Ang "asobu" ay maglaro, at kapag nag-aaya ka, idagdag ang "mashou": "asobimashou" (maglaro tayo).'),
+    L('tip', 'Tip & trick', 'Habang naglalaro, sabihin nang malakas ang pangalan ng laruan na hawak mo. Ang salitang kasama ng galaw at hawak ay mas tumatatak.'),
+    L('remember', 'Tandaan natin', 'Tako (凧) = saranggola. Tako (蛸) naman ay pugita, magkaparehong tunog pero magkaiba ang kanji. Sa laruan, saranggola ang ibig sabihin ng tako.'),
+    L('local', 'Sabi ng mga lokal', 'Tuwing Marso 3, ipinagdiriwang ang Hina Matsuri (Araw ng mga Batang Babae). Ipinapakita ng mga pamilya ang tradisyonal na manika, ang "ningyou", sa bahay bilang panalangin para sa kalusugan at kaligayahan ng mga anak.'),
   ],
 };

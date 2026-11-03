@@ -69,7 +69,7 @@ function build(isKatakana: boolean): KanaItem[] {
       const character = base + small;
       const sound = ['ya', 'yu', 'yo'][i];
       items.push({
-        id: `${isKatakana ? 'kata' : 'kana'}-${romaji}`,
+        id: `kana-${romaji}${isKatakana ? '-katakana' : ''}`,
         type: 'kana',
         unitId: `stage0-u${(isKatakana ? 16 : 13) + row.group}`,
         character,
