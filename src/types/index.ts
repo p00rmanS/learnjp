@@ -9,7 +9,7 @@ export interface User {
 }
 
 // Levels
-export type LevelName = 'stage0' | 'n5' | 'n4' | 'n3' | 'n2' | 'n1' | 'kanji';
+export type LevelName = 'stage0' | 'pundasyon' | 'n5' | 'n4' | 'n3' | 'n2' | 'n1' | 'kanji';
 
 // Course mastery: a character is mastered after three correct answers in a row.
 export interface Mastery {

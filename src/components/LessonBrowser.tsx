@@ -46,6 +46,15 @@ const UNIT_GLYPHS: Record<string, string> = {
   'n5-feelings': '情',
   'n5-visit': '訪',
   'n5-cooking': '厨',
+  'pun-katawan': '身',
+  'pun-oras': '刻',
+  'pun-direksyon': '方',
+  'pun-prutas': '果',
+  'pun-gulay': '菜',
+  'pun-hayop': '獣',
+  'pun-kulay': '彩',
+  'pun-hugis': '図',
+  'pun-paaralan': '学',
 };
 
 export default function LessonBrowser({ onBack, initialUnitId, onOpenedUnit }: LessonBrowserProps) {

@@ -13,6 +13,15 @@ import { n5Extra4Guides, n5Extra4Stories, n5Extra4Units, n5Extra4Vocab, vocabTag
 import { n5Extra5Guides, n5Extra5Stories, n5Extra5Units, n5Extra5Vocab, vocabTaglish5 } from './lessons-extra5';
 import { n5Extra6Guides, n5Extra6Stories, n5Extra6Units, n5Extra6Vocab, vocabTaglish6 } from './lessons-extra6';
 import { deepSections } from './deepLessons';
+import {
+  pundasyonGuides,
+  pundasyonLevel,
+  pundasyonSections,
+  pundasyonStories,
+  pundasyonUnits,
+  pundasyonVocab,
+} from './lessons-pundasyon';
+import { vocabTaglishPun } from './vocabTaglishPun';
 import { unitGuides, unitStories } from './lessonStories';
 import { vocabTaglish } from './vocabTaglish';
 import { kanaTaglish } from './kanaTaglish';
@@ -207,7 +216,8 @@ function localize(item: Item): Item {
         vocabTaglish3[item.id] ??
         vocabTaglish4[item.id] ??
         vocabTaglish5[item.id] ??
-        vocabTaglish6[item.id],
+        vocabTaglish6[item.id] ??
+        vocabTaglishPun[item.id],
     };
   }
   if (item.type === 'grammar') {
@@ -256,7 +266,14 @@ export async function seedLessonContent(db: MichiDB) {
     title: 'Kanji Course',
     description: 'Mga letrang Tsino, tinuturo sa kurso.',
   });
-  await db.units.bulkPut([...stage0Units, ...n5All, ...kanjiUnits]);
+  await db.levels.put(pundasyonLevel);
+  const pundasyonAll = pundasyonUnits.map((unit) => ({
+    ...unit,
+    sections: pundasyonSections[unit.id],
+    guide: pundasyonGuides[unit.id],
+    story: pundasyonStories[unit.id],
+  }));
+  await db.units.bulkPut([...stage0Units, ...n5All, ...kanjiUnits, ...pundasyonAll]);
   const allItems: Item[] = [
     ...kanaItems,
     ...katakanaItems,
@@ -272,6 +289,7 @@ export async function seedLessonContent(db: MichiDB) {
     ...n5Extra4Vocab,
     ...n5Extra5Vocab,
     ...n5Extra6Vocab,
+    ...pundasyonVocab,
   ];
   await db.items.bulkPut(withSeedOrder(allItems.map(localize)));
 }
