@@ -12,6 +12,7 @@ import { vocabTaglish3 } from './vocabTaglish3';
 import { n5Extra4Guides, n5Extra4Stories, n5Extra4Units, n5Extra4Vocab, vocabTaglish4 } from './lessons-extra4';
 import { n5Extra5Guides, n5Extra5Stories, n5Extra5Units, n5Extra5Vocab, vocabTaglish5 } from './lessons-extra5';
 import { n5Extra6Guides, n5Extra6Stories, n5Extra6Units, n5Extra6Vocab, vocabTaglish6 } from './lessons-extra6';
+import { deepSections } from './deepLessons';
 import { unitGuides, unitStories } from './lessonStories';
 import { vocabTaglish } from './vocabTaglish';
 import { kanaTaglish } from './kanaTaglish';
@@ -232,6 +233,7 @@ export async function seedLessonContent(db: MichiDB) {
     ...n5Extra6Units,
   ].map((unit) => ({
     ...unit,
+    sections: deepSections[unit.id],
     guide:
       unitGuides[unit.id] ??
       n5Extra2Guides[unit.id] ??

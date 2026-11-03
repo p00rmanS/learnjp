@@ -7,6 +7,7 @@ import { completeUnit, type UnitResult } from '@/services/progress';
 import { speak, speakAll } from '@/utils/speech';
 import { useArrowKeys } from '@/utils/keyboard';
 import UnitQuiz from './UnitQuiz';
+import DeepSections from './DeepSections';
 import type { GrammarItem, Item, Unit, VocabItem } from '@/types';
 
 interface UnitLessonProps {
@@ -135,6 +136,21 @@ export default function UnitLesson({ unit, items, onBack, prevUnit, nextUnit, on
         </button>
       </section>
 
+      <nav aria-label="Nilalaman ng aralin" className="-mt-4 flex flex-wrap gap-2 text-sm">
+        {[
+          ...(unit.sections && unit.sections.length > 0 ? [['#malalim', 'Malalim na aral']] : []),
+          ['#mga-salita', isGrammar ? 'Mga pattern' : 'Mga salita'],
+        ].map(([href, label]) => (
+          <a
+            key={href}
+            href={href}
+            className="rounded-full border border-ink-line px-4 py-1.5 text-ink-2 transition hover:border-ink hover:text-ink"
+          >
+            {label}
+          </a>
+        ))}
+      </nav>
+
       {guide && (
         <section className="surface relative p-7 sm:p-10">
           <div className="flex gap-5">
@@ -200,7 +216,9 @@ export default function UnitLesson({ unit, items, onBack, prevUnit, nextUnit, on
         </section>
       )}
 
-      <section className="space-y-6">
+      {unit.sections && unit.sections.length > 0 && <DeepSections sections={unit.sections} />}
+
+      <section id="mga-salita" className="scroll-mt-28 space-y-6">
         <p className="eyebrow">{isGrammar ? 'Mga pattern' : 'Mga salita'}</p>
 
         {isGrammar ? (

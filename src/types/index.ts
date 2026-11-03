@@ -45,6 +45,14 @@ export interface Story {
   lines: StoryLine[];
 }
 
+export type SectionKind = 'explain' | 'tip' | 'remember' | 'local';
+
+export interface LessonSection {
+  kind: SectionKind;
+  title: string;
+  body: string;
+}
+
 export interface Unit {
   id: string;
   levelId: string;
@@ -54,6 +62,7 @@ export interface Unit {
   description?: string;
   guide?: LessonGuide;
   story?: Story;
+  sections?: LessonSection[];
 }
 
 // Items (learnable things: kana, kanji, vocab, grammar)
