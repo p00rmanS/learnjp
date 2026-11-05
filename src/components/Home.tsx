@@ -65,7 +65,7 @@ export default function Home() {
                 onClick={() => (key === 'lessons' ? openLesson() : setScreen(key === 'courses' ? 'courses' : 'today'))}
                 aria-current={activeTab === key ? 'page' : undefined}
                 className={`rounded-full px-4 py-2 text-sm font-semibold transition duration-200 ${
-                  activeTab === key ? 'bg-paper-card text-ink shadow-card' : 'text-ink-2 hover:text-ink'
+                  activeTab === key ? 'bg-gradient-to-r from-ai-500 to-sakura-500 text-white shadow-pop' : 'text-ink-2 hover:bg-paper-card hover:text-ink'
                 }`}
               >
                 {label}
@@ -78,7 +78,7 @@ export default function Home() {
       <main className="mx-auto max-w-5xl px-5 pb-24 pt-10 sm:px-8 sm:pt-14">
         {screen === 'today' && (
           <div className="animate-rise space-y-10">
-            <div className="flex items-stretch justify-between gap-8 border-b border-ink-line pb-10">
+            <div className="surface flex items-stretch justify-between gap-8 p-7 sm:p-12">
               <div className="max-w-2xl">
                 <p className="eyebrow">Maligayang pagbabalik</p>
                 <h1 className="display mt-4 text-[2.75rem] leading-[1.05] sm:text-6xl">
@@ -92,7 +92,7 @@ export default function Home() {
                 </p>
               </div>
               <span
-                className="vertical-jp hidden select-none font-kanji text-[7rem] leading-none text-ai-100 sm:block"
+                className="vertical-jp hidden select-none font-kanji text-[5.5rem] leading-none text-ai-200 sm:block"
                 aria-hidden="true"
               >
                 道を歩く

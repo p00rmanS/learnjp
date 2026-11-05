@@ -8,11 +8,13 @@
   }
 
   body {
-    @apply bg-paper font-ui text-ink antialiased;
+    @apply font-ui text-ink antialiased;
+    background-color: #fbf4ec;
+    min-height: 100vh;
   }
 
   ::selection {
-    @apply bg-ai-100 text-ai-800;
+    @apply bg-sakura-100 text-ai-800;
   }
 
   :focus-visible {
@@ -26,31 +28,35 @@
 
 @layer components {
   .eyebrow {
-    @apply text-[11px] font-semibold uppercase tracking-eyebrow text-ink-3;
+    @apply text-[12px] font-bold uppercase tracking-eyebrow text-sakura-500;
   }
 
   .display {
-    @apply font-display font-medium tracking-tight text-ink;
+    @apply font-display font-semibold leading-tight tracking-normal text-ink;
   }
 
   .surface {
-    @apply rounded-[4px] border border-ink-line bg-paper-card;
+    @apply rounded-3xl border border-white/80 bg-paper-card shadow-soft;
   }
 
   .btn-ink {
-    @apply inline-flex items-center justify-center gap-2 rounded-[3px] bg-ink px-6 py-3 text-[14px] font-semibold tracking-wide text-paper-card transition duration-200 hover:bg-ai-700 disabled:cursor-not-allowed disabled:opacity-40;
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-ai-500 to-sakura-500 px-6 py-3 text-[15px] font-extrabold tracking-wide text-white shadow-pop transition duration-200 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none;
   }
 
   .btn-quiet {
-    @apply inline-flex items-center justify-center gap-2 rounded-[3px] border border-ink-line px-5 py-3 text-[14px] font-medium text-ink transition duration-200 hover:border-ink hover:bg-paper-deep disabled:opacity-40;
+    @apply inline-flex items-center justify-center gap-2 rounded-full border-2 border-ai-100 bg-paper-card px-5 py-3 text-[15px] font-bold text-ink transition duration-200 hover:border-ai-400 hover:bg-ai-50 disabled:opacity-40;
   }
 
   .link-back {
-    @apply inline-flex items-center gap-2 text-sm font-medium text-ink-2 underline-offset-4 transition hover:text-ai-600 hover:underline;
+    @apply inline-flex items-center gap-2 rounded-full bg-paper-card/70 px-4 py-2 text-sm font-bold text-ai-600 shadow-soft transition hover:bg-ai-50;
   }
 
   .hanko {
-    @apply inline-flex items-center justify-center rounded-[2px] bg-shu-500 font-kanji font-bold text-paper-card;
+    @apply inline-flex items-center justify-center rounded-2xl bg-shu-500 font-kanji font-bold text-white shadow-soft;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold;
   }
 
   .jp-text {
@@ -73,7 +79,7 @@
 @keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -81,8 +87,22 @@
   }
 }
 
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(4deg);
+  }
+}
+
 .animate-rise {
   animation: rise 420ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.animate-float {
+  animation: float 7s ease-in-out infinite;
 }
 
 .vertical-jp {

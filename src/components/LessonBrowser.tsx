@@ -205,13 +205,13 @@ export default function LessonBrowser({ onBack, initialUnitId, onOpenedUnit }: L
   let counter = 0;
 
   return (
-    <div className="space-y-16">
+    <div className="space-y-10 sm:space-y-14">
       <div className="max-w-2xl">
         <button onClick={onBack} className="link-back">
           ← Bumalik sa Today
         </button>
-        <p className="eyebrow mt-10">Curriculum</p>
-        <h2 className="display mt-3 text-5xl">Mga Lesson</h2>
+        <p className="eyebrow mt-8">Curriculum</p>
+        <h2 className="display mt-3 text-4xl sm:text-5xl">Mga Lesson</h2>
         <p className="mt-5 text-[15px] leading-relaxed text-ink-2">
           Bawat unit ay may pagpapakilala ng teacher, gabay sa pagbigkas, pro tip, maikling kwento na may romaji at
           English, at practice. Pindutin ang ▶ para marinig ang bawat salita.
@@ -219,22 +219,25 @@ export default function LessonBrowser({ onBack, initialUnitId, onOpenedUnit }: L
       </div>
 
       {grouped.map(({ level, units: levelUnits }) => (
-        <section key={level.id}>
-          <div className="flex items-baseline justify-between gap-6 border-b border-ink pb-3">
-            <h3 className="display text-2xl">{level.title}</h3>
-            <p className="hidden text-sm text-ink-3 sm:block">{level.description}</p>
+        <section
+          key={level.id}
+          className="surface p-4 sm:p-8"
+        >
+          <div className="flex flex-col gap-1 pb-5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
+            <h3 className="display text-2xl sm:text-3xl">{level.title}</h3>
+            <p className="text-sm text-ink-2 sm:text-right">{level.description}</p>
           </div>
 
-          <ol className="divide-y divide-ink-line">
+          <ol className="space-y-3">
             {levelUnits.map((unit) => {
               const number = level.id === 'stage0' ? null : String(++counter).padStart(2, '0');
               return (
                 <li key={unit.id}>
                   <button
                     onClick={() => openUnit(unit)}
-                    className="group grid w-full grid-cols-[3rem_1fr_auto] items-center gap-4 py-5 text-left transition hover:bg-paper-deep/50 sm:grid-cols-[4rem_3rem_1fr_auto] sm:gap-6 sm:px-2"
+                    className="group grid w-full grid-cols-[2.75rem_1fr_auto] items-center gap-3 rounded-2xl bg-paper-card p-3 text-left shadow-soft transition duration-200 hover:-translate-y-0.5 hover:shadow-pop sm:grid-cols-[3.5rem_3rem_1fr_auto] sm:gap-5 sm:p-4"
                   >
-                    <span className="display tabular-nums text-2xl text-ink-3 group-hover:text-ai-600">
+                    <span className="display tabular-nums text-2xl text-ai-400 group-hover:text-ai-600">
                       {number ?? '—'}
                     </span>
                     <span
