@@ -30,6 +30,14 @@ import {
   pundasyonVocab2,
   vocabTaglishPun2,
 } from './lessons-pundasyon2';
+import {
+  pundasyonGuides3,
+  pundasyonSections3,
+  pundasyonStories3,
+  pundasyonUnits3,
+  pundasyonVocab3,
+  vocabTaglishPun3,
+} from './lessons-pundasyon3';
 import { vocabTaglishPun } from './vocabTaglishPun';
 import { unitGuides, unitStories } from './lessonStories';
 import { vocabTaglish } from './vocabTaglish';
@@ -227,7 +235,8 @@ function localize(item: Item): Item {
         vocabTaglish5[item.id] ??
         vocabTaglish6[item.id] ??
         vocabTaglishPun[item.id] ??
-        vocabTaglishPun2[item.id],
+        vocabTaglishPun2[item.id] ??
+        vocabTaglishPun3[item.id],
     };
   }
   if (item.type === 'grammar') {
@@ -277,11 +286,11 @@ export async function seedLessonContent(db: MichiDB) {
     description: 'Mga letrang Tsino, tinuturo sa kurso.',
   });
   await db.levels.put(pundasyonLevel);
-  const pundasyonAll = [...pundasyonUnits, ...pundasyonUnits2].map((unit) => ({
+  const pundasyonAll = [...pundasyonUnits, ...pundasyonUnits2, ...pundasyonUnits3].map((unit) => ({
     ...unit,
-    sections: { ...pundasyonSections, ...pundasyonSections2 }[unit.id],
-    guide: { ...pundasyonGuides, ...pundasyonGuides2 }[unit.id],
-    story: { ...pundasyonStories, ...pundasyonStories2 }[unit.id],
+    sections: { ...pundasyonSections, ...pundasyonSections2, ...pundasyonSections3 }[unit.id],
+    guide: { ...pundasyonGuides, ...pundasyonGuides2, ...pundasyonGuides3 }[unit.id],
+    story: { ...pundasyonStories, ...pundasyonStories2, ...pundasyonStories3 }[unit.id],
   }));
   await db.units.bulkPut([...stage0Units, ...yoonUnits, ...n5All, ...kanjiUnits, ...pundasyonAll]);
   const allItems: Item[] = [
@@ -303,6 +312,7 @@ export async function seedLessonContent(db: MichiDB) {
     ...n5Extra6Vocab,
     ...pundasyonVocab,
     ...pundasyonVocab2,
+    ...pundasyonVocab3,
   ];
   await db.items.bulkPut(withSeedOrder(allItems.map(localize)));
 }

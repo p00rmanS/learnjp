@@ -61,6 +61,11 @@ const UNIT_GLYPHS: Record<string, string> = {
   'pun-insekto': '虫',
   'pun-trabaho': '職',
   'pun-pandama': '感',
+  'pun-zoo': '園',
+  'pun-sasakyan': '乗',
+  'pun-palaruan': '台',
+  'pun-kusina': '皿',
+  'pun-dagat': '海',
 };
 
 export default function LessonBrowser({ onBack, initialUnitId, onOpenedUnit }: LessonBrowserProps) {
