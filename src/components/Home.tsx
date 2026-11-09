@@ -8,8 +8,9 @@ import GrowthPanel from './GrowthPanel';
 import ReviewSession from './ReviewSession';
 import LessonBrowser from './LessonBrowser';
 import CourseSection from './CourseSection';
+import GrammarHub from './GrammarHub';
 
-type Screen = 'today' | 'lessons' | 'courses' | 'review';
+type Screen = 'today' | 'lessons' | 'grammar' | 'courses' | 'review';
 
 const START_UNIT_ID = 'n5-greetings';
 
@@ -48,23 +49,24 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       <header className="sticky top-0 z-20 border-b border-ink-line/70 bg-paper/85 backdrop-blur-md">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-4 gap-y-3 px-5 py-3 sm:px-8 sm:py-4">
           <button onClick={() => setScreen('today')} className="rounded-xl text-left" aria-label="Michi home">
             <Brand />
           </button>
-          <nav className="flex rounded-full bg-paper-deep p-1 ring-1 ring-ink-line" aria-label="Main">
+          <nav className="flex w-full rounded-full bg-paper-deep p-1 ring-1 ring-ink-line sm:w-auto" aria-label="Main">
             {(
               [
                 ['today', 'Today'],
                 ['lessons', 'Lessons'],
+                ['grammar', 'Gramatika'],
                 ['courses', 'Kurso'],
               ] as const
             ).map(([key, label]) => (
               <button
                 key={key}
-                onClick={() => (key === 'lessons' ? openLesson() : setScreen(key === 'courses' ? 'courses' : 'today'))}
+                onClick={() => (key === 'lessons' ? openLesson() : setScreen(key))}
                 aria-current={activeTab === key ? 'page' : undefined}
-                className={`rounded-full px-4 py-2 text-sm font-semibold transition duration-200 ${
+                className={`flex-1 rounded-full px-3 py-2 text-center text-[13px] font-bold transition duration-200 sm:flex-none sm:px-4 sm:text-sm ${
                   activeTab === key ? 'bg-gradient-to-r from-ai-500 to-sakura-500 text-white shadow-pop' : 'text-ink-2 hover:bg-paper-card hover:text-ink'
                 }`}
               >
@@ -137,6 +139,8 @@ export default function Home() {
             </div>
           </div>
         )}
+
+        {screen === 'grammar' && <GrammarHub />}
 
         {screen === 'courses' && <CourseSection />}
 
