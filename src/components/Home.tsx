@@ -53,7 +53,7 @@ export default function Home() {
           <button onClick={() => setScreen('today')} className="rounded-xl text-left" aria-label="Michi home">
             <Brand />
           </button>
-          <nav className="flex w-full rounded-full bg-paper-deep p-1 ring-1 ring-ink-line sm:w-auto" aria-label="Main">
+          <nav className="flex w-full rounded-sm bg-paper-deep p-1 ring-1 ring-ink-line sm:w-auto" aria-label="Main">
             {(
               [
                 ['today', 'Today'],
@@ -66,8 +66,8 @@ export default function Home() {
                 key={key}
                 onClick={() => (key === 'lessons' ? openLesson() : setScreen(key))}
                 aria-current={activeTab === key ? 'page' : undefined}
-                className={`flex-1 rounded-full px-3 py-2 text-center text-[13px] font-bold transition duration-200 sm:flex-none sm:px-4 sm:text-sm ${
-                  activeTab === key ? 'bg-gradient-to-r from-ai-500 to-sakura-500 text-white shadow-pop' : 'text-ink-2 hover:bg-paper-card hover:text-ink'
+                className={`flex-1 rounded-sm px-3 py-2 text-center text-[13px] font-bold transition duration-200 sm:flex-none sm:px-4 sm:text-sm ${
+                  activeTab === key ? 'bg-ink text-paper-card' : 'text-ink-2 hover:bg-paper-card hover:text-ink'
                 }`}
               >
                 {label}

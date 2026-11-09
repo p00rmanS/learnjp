@@ -45,7 +45,7 @@ function LessonCheck({ check }: { check: NonNullable<ConceptLesson['check']> }) 
               key={o}
               disabled={picked !== null}
               onClick={() => setPicked(i)}
-              className={`jp-text rounded-2xl border-2 px-4 py-3 text-left text-[15px] font-bold transition-colors ${state}`}
+              className={`jp-text rounded-md border-2 px-4 py-3 text-left text-[15px] font-bold transition-colors ${state}`}
             >
               {o}
             </button>
@@ -90,7 +90,7 @@ export default function ConceptLessons({ lessons: conceptLessons, storageKey, in
 
         <div className="h-2 overflow-hidden rounded-full bg-paper-deep" aria-hidden="true">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-ai-500 to-sakura-500 transition-all duration-500"
+            className="h-full rounded-full bg-ai-500 transition-all duration-500"
             style={{ width: `${percent}%` }}
           />
         </div>
@@ -101,7 +101,7 @@ export default function ConceptLessons({ lessons: conceptLessons, storageKey, in
           </p>
           <h2 className="display mt-2 text-3xl sm:text-4xl jp-text">{lesson.title}</h2>
           {lesson.pattern && (
-            <p className="mt-4 inline-block rounded-2xl bg-ai-50 px-4 py-2 text-base font-bold jp-text text-ai-700">
+            <p className="mt-4 inline-block rounded-md bg-ai-50 px-4 py-2 text-base font-bold jp-text text-ai-700">
               {lesson.pattern}
             </p>
           )}

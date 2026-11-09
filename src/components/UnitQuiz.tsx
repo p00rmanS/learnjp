@@ -176,7 +176,7 @@ export default function UnitQuiz({ items, onFinish, onClose }: UnitQuizProps) {
               key={option}
               onClick={() => choose(option)}
               disabled={answered}
-              className={`rounded-2xl border px-5 py-4 text-left text-[15px] font-medium transition duration-200 ${tone}`}
+              className={`rounded-md border px-5 py-4 text-left text-[15px] font-medium transition duration-200 ${tone}`}
             >
               {option}
             </button>

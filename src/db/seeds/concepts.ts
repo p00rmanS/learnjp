@@ -37,6 +37,7 @@ export const conceptLessons: ConceptLesson[] = [
     ],
     remember: 'Isang kana = isang beat. Pantay-pantay, walang diin.',
     tip: 'Pakinggan ang Japanese na pelikula at i-clap ang bawat beat. Mabilis mong mararamdaman ang ritmo.',
+    check: { q: 'Ilang beat ang "sakura"?', options: ['2', '3', '4', '5'], answer: 1 },
   },
   {
     id: 'study-method',
@@ -50,6 +51,7 @@ export const conceptLessons: ConceptLesson[] = [
     ],
     remember: 'Maliit na unit, araw-araw, tapos review kinabukasan.',
     tip: 'Mas epektibo ang 10 minuto araw-araw kaysa 1 oras isang beses sa isang linggo.',
+    check: { q: 'Gaano karaming kana ang dapat aralin kada araw?', options: ['Lahat ng 46', '5 hanggang 10', '1 lang', '20 o higit pa'], answer: 1 },
   },
   {
     id: 'small-tsu',
@@ -67,6 +69,7 @@ export const conceptLessons: ConceptLesson[] = [
     ],
     remember: 'Maliit na っ = hawak ng isang beat, tapos ang susunod na consonant.',
     tip: 'Sa romaji, isinusulat ito bilang doble: gakkou, kitte. Kapag nakita mo ang doble sa romaji, hanapin ang っ.',
+    check: { q: 'Aling salita ang "selyo" (stamp)?', options: ['きて', 'きって', 'きっと', 'きたい'], answer: 1 },
   },
   {
     id: 'yoon',
@@ -85,6 +88,7 @@ export const conceptLessons: ConceptLesson[] = [
     ],
     remember: 'Maliit na ゃゅょ = idikit sa naunang kana, isang beat lang.',
     tip: 'Ang しゃ, しゅ, しょ, ちゃ, ちゅ, ちょ, じゃ, じゅ, じょ ay may espesyal na tunog (sha, shu, sho, cha, chu, cho, ja, ju, jo). Walang "y" sa romaji nila.',
+    check: { q: 'Paano binabasa ang "きゃ"?', options: ['ki-ya', 'kya', 'ka', 'kyo'], answer: 1 },
   },
   {
     id: 'long-vowels',
@@ -104,6 +108,7 @@ export const conceptLessons: ConceptLesson[] = [
     ],
     remember: 'Mahabang vowel = dalawang beat. Bilangin mo.',
     tip: 'Kapag nagbabasa ng ー, hawakan ang vowel ng naunang kana sa isang dagdag na beat.',
+    check: { q: 'Aling salita ang "lola" (obaasan)?', options: ['おばさん', 'おばあさん', 'おばさま', 'おばけ'], answer: 1 },
   },
   {
     id: 'particles-sound',
@@ -119,8 +124,9 @@ export const conceptLessons: ConceptLesson[] = [
       { jp: 'みずを のみます', romaji: 'mizu o nomimasu', meaning: 'Umiinom ako ng tubig.' },
       { jp: 'がっこうへ いきます', romaji: 'gakkou e ikimasu', meaning: 'Pupunta ako sa paaralan.' },
     ],
-    remember: 'は = wa, を = o, へ = e. Pero lang kapag particle.',
+    remember: 'は = wa, を = o, へ = e. Kapag particle lang ang gamit, hindi kapag bahagi ng salita.',
     tip: 'Ang を ay halos laging particle. Kapag nakita mo ito sa pangungusap, alam mong "object marker" ito.',
+    check: { q: 'Paano binabasa ang は sa "わたしは" (bilang particle)?', options: ['ha', 'wa', 'o', 'e'], answer: 1 },
   },
   {
     id: 'katakana-loanwords',
@@ -140,6 +146,7 @@ export const conceptLessons: ConceptLesson[] = [
     ],
     remember: 'Katakana = tunog ng ibang wika, binasa gamit ang Japanese sounds.',
     tip: 'Maglaro: basahin ang mga pangalan ng produkto sa Japanese ads. Mabilis itong magiging masaya.',
+    check: { q: 'Ano ang ibig sabihin ng テレビ?', options: ['Telepono', 'Telebisyon', 'Teatro', 'Tela'], answer: 1 },
   },
   {
     id: 'sentence-order',
@@ -148,14 +155,15 @@ export const conceptLessons: ConceptLesson[] = [
     body: [
       'Ang Japanese ay SOV: Subject, Object, Verb. Ang pandiwa ay nasa dulo. Sa English, "I eat rice". Sa Japanese, "I rice eat".',
       'Hindi ito kalayo sa Tagalog: puwede nating sabihing "Kumain ako ng kanin" o "Ako ay kumain ng kanin". Pero sa Japanese, ang pandiwa ay talagang laging huli.',
-      'Ang mga particle ang nagsasabi ng papel ng bawat salita. は para sa topic, を para sa object, に at で para sa lugar o oras.',
+      'Ang mga particle ang nagsasabi ng papel ng bawat salita. は para sa topic, を para sa object, に para sa oras o patutunguhan, at で para sa lugar kung saan may ginagawa.',
       'Walang plural sa Japanese. "Hon" ay puwedeng "book" o "books", depende sa konteksto.',
     ],
     examples: [
       { jp: 'わたしは ごはんを たべます', romaji: 'watashi wa gohan o tabemasu', meaning: 'I rice eat = Kumakain ako ng kanin.' },
       { jp: 'ねこが すきです', romaji: 'neko ga suki desu', meaning: 'Gusto ko ang pusa.' },
     ],
-    remember: 'Pandiwa sa dulo, particle sa gitna.',
+    remember: 'Pandiwa laging nasa dulo. Ang particle ang nagsasabi ng papel ng bawat salita.',
     tip: 'Sa pakikinig, hintayin mo ang dulo ng pangungusap. Doon nasa pinakamahalagang impormasyon.',
+    check: { q: 'Saan nasa pangungusap ang pandiwa sa Japanese?', options: ['Sa simula', 'Sa gitna', 'Sa dulo', 'Kahit saan'], answer: 2 },
   },
 ];

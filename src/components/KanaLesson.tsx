@@ -50,7 +50,7 @@ export default function KanaLesson({ kana, onLearned }: KanaLessonProps) {
       </div>
       <p className="mt-2 text-sm text-ink-3">Say it like: {kana.pronunciation}</p>
 
-      <blockquote className="mx-auto mt-10 max-w-md rounded-2xl bg-paper-deep/60 p-6 text-left">
+      <blockquote className="mx-auto mt-10 max-w-md rounded-md bg-paper-deep/60 p-6 text-left">
         <p className="eyebrow">Memory trick</p>
         <p className="mt-2 text-[15px] leading-relaxed text-ink-2">{kana.mnemonic}</p>
       </blockquote>

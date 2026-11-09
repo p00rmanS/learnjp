@@ -5,16 +5,17 @@
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;
+    font-size: 17px;
   }
 
   body {
-    @apply font-ui text-ink antialiased;
-    background-color: #fbf4ec;
+    @apply font-ui text-[17px] leading-[1.65] text-ink antialiased;
+    background-color: #ece9e3;
     min-height: 100vh;
   }
 
   ::selection {
-    @apply bg-sakura-100 text-ai-800;
+    @apply bg-ai-100 text-ai-800;
   }
 
   :focus-visible {
@@ -28,35 +29,35 @@
 
 @layer components {
   .eyebrow {
-    @apply text-[12px] font-bold uppercase tracking-eyebrow text-sakura-500;
+    @apply text-[13px] font-bold uppercase tracking-eyebrow text-ink-3;
   }
 
   .display {
-    @apply font-display font-semibold leading-tight tracking-normal text-ink;
+    @apply font-display font-extrabold leading-[1.1] tracking-tight text-ink;
   }
 
   .surface {
-    @apply rounded-3xl border border-white/80 bg-paper-card shadow-soft;
+    @apply rounded-md border border-ink-line bg-paper-card;
   }
 
   .btn-ink {
-    @apply inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-ai-500 to-sakura-500 px-6 py-3 text-[15px] font-extrabold tracking-wide text-white shadow-pop transition duration-200 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none;
+    @apply inline-flex items-center justify-center gap-2 rounded-sm bg-ink px-6 py-3 text-[16px] font-bold text-paper-card transition duration-150 hover:bg-ai-600 disabled:cursor-not-allowed disabled:opacity-40;
   }
 
   .btn-quiet {
-    @apply inline-flex items-center justify-center gap-2 rounded-full border-2 border-ai-100 bg-paper-card px-5 py-3 text-[15px] font-bold text-ink transition duration-200 hover:border-ai-400 hover:bg-ai-50 disabled:opacity-40;
+    @apply inline-flex items-center justify-center gap-2 rounded-sm border border-ink px-5 py-3 text-[16px] font-bold text-ink transition duration-150 hover:bg-ink hover:text-paper-card disabled:opacity-40;
   }
 
   .link-back {
-    @apply inline-flex items-center gap-2 rounded-full bg-paper-card/70 px-4 py-2 text-sm font-bold text-ai-600 shadow-soft transition hover:bg-ai-50;
+    @apply inline-flex items-center gap-2 text-[15px] font-bold text-ink underline decoration-ai-500 decoration-2 underline-offset-4 transition hover:text-ai-600;
   }
 
   .hanko {
-    @apply inline-flex items-center justify-center rounded-2xl bg-shu-500 font-kanji font-bold text-white shadow-soft;
+    @apply inline-flex items-center justify-center rounded-sm bg-shu-500 font-kanji font-bold text-white;
   }
 
   .chip {
-    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold;
+    @apply inline-flex items-center gap-1.5 rounded-sm border border-current px-2.5 py-0.5 text-[13px] font-bold uppercase tracking-wide;
   }
 
   .jp-text {
@@ -79,7 +80,7 @@
 @keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
@@ -87,22 +88,8 @@
   }
 }
 
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-10px) rotate(4deg);
-  }
-}
-
 .animate-rise {
-  animation: rise 420ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
-}
-
-.animate-float {
-  animation: float 7s ease-in-out infinite;
+  animation: rise 320ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
 .vertical-jp {

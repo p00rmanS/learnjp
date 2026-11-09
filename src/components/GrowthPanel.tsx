@@ -157,7 +157,7 @@ function Ring({ ratio, done }: { ratio: number; done: boolean }) {
 function FlameIcon({ lit }: { lit: boolean }) {
   return (
     <span
-      className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl ${lit ? 'bg-shu-500/10' : 'bg-paper-deep'}`}
+      className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-md ${lit ? 'bg-shu-500/10' : 'bg-paper-deep'}`}
       aria-hidden="true"
     >
       <svg viewBox="0 0 24 24" className={`h-8 w-8 ${lit ? 'text-shu-500' : 'text-ink-3'}`} fill="currentColor">

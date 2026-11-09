@@ -233,7 +233,7 @@ function RatingRow({ onRate }: { onRate: (rating: Rating) => void }) {
         <button
           key={rating.value}
           onClick={() => onRate(rating.value)}
-          className={`flex flex-col items-center gap-0.5 rounded-2xl border border-ink-line bg-paper-card px-4 py-4 text-ink transition duration-200 ${RATING_TONE[rating.value]}`}
+          className={`flex flex-col items-center gap-0.5 rounded-md border border-ink-line bg-paper-card px-4 py-4 text-ink transition duration-200 ${RATING_TONE[rating.value]}`}
         >
           <span className="font-semibold">{rating.label}</span>
           <span className="text-xs text-ink-3">{rating.hint}</span>

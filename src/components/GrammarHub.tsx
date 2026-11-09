@@ -74,9 +74,9 @@ export default function GrammarHub() {
             role="tab"
             aria-selected={l.id === activeId}
             onClick={() => setActiveId(l.id)}
-            className={`rounded-full px-4 py-2 text-sm font-bold transition duration-200 ${
+            className={`rounded-sm px-4 py-2 text-sm font-bold transition duration-200 ${
               l.id === activeId
-                ? 'bg-gradient-to-r from-ai-500 to-sakura-500 text-white shadow-pop'
+                ? 'bg-ink text-paper-card'
                 : 'bg-paper-card text-ink-2 shadow-soft hover:text-ink'
             }`}
           >

@@ -1,78 +1,79 @@
 /** @type {import('tailwindcss').Config} */
+// Palette inspired by Tokyo signage and station maps: concrete paper, near-black ink,
+// one vermilion accent (like a subway sign), and muted green for "done".
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       fontFamily: {
-        ui: ['Nunito', 'ui-rounded', 'system-ui', 'sans-serif'],
-        display: ['Fredoka', 'Nunito', 'system-ui', 'sans-serif'],
-        jp: ['"Zen Maru Gothic"', '"Noto Sans JP"', '"Hiragino Sans"', 'sans-serif'],
-        kanji: ['"Noto Serif JP"', '"Zen Maru Gothic"', 'serif'],
+        ui: ['"Hanken Grotesk"', 'Archivo', 'system-ui', 'sans-serif'],
+        display: ['Archivo', '"Hanken Grotesk"', 'system-ui', 'sans-serif'],
+        jp: ['"Zen Kaku Gothic New"', '"Noto Sans JP"', '"Hiragino Sans"', 'sans-serif'],
+        kanji: ['"Shippori Mincho"', '"Noto Serif JP"', 'serif'],
       },
       colors: {
-        // Warm cream base and tinted cards, so the app never reads as plain white.
         paper: {
-          DEFAULT: '#FFF3E4',
-          deep: '#FFE3CC',
-          card: '#FFF9F1',
+          DEFAULT: '#ECE9E3',
+          deep: '#DEDAD2',
+          card: '#F6F4F0',
         },
         ink: {
-          DEFAULT: '#2A2456',
-          2: '#5B5680',
-          3: '#8C87AE',
-          line: '#EAD9C8',
+          DEFAULT: '#151515',
+          2: '#4A4A48',
+          3: '#7B7A76',
+          line: '#CBC6BC',
         },
-        // Primary accent: violet-blue.
+        // Accent: subway-sign vermilion.
         ai: {
-          50: '#F1EDFF',
-          100: '#E2D9FF',
-          200: '#C4B5FF',
-          400: '#8A6CFF',
-          500: '#6B4BFF',
-          600: '#5532E6',
-          700: '#4224B8',
-          800: '#321B8A',
+          50: '#FBEDE9',
+          100: '#F4D2C9',
+          200: '#E9A393',
+          400: '#E4553A',
+          500: '#D9401F',
+          600: '#B8331A',
+          700: '#8F2713',
+          800: '#65190B',
         },
-        // Sakura coral, used for the hanko seal and warm highlights.
         shu: {
-          500: '#FF6B6B',
-          600: '#EC4F62',
+          500: '#D9401F',
+          600: '#B8331A',
         },
-        // Fresh green for done, streak, and success states.
+        // Muted green for done states.
         matcha: {
-          500: '#1FB27A',
-          100: '#D6F6E7',
+          500: '#2F6B4F',
+          100: '#DCE8E0',
         },
         sakura: {
-          100: '#FFE0EC',
-          400: '#FF8FB8',
-          500: '#FF6FA3',
+          100: '#F4D2C9',
+          400: '#E4553A',
+          500: '#D9401F',
         },
         sky: {
-          100: '#DDF0FF',
-          400: '#5BB8FF',
-          500: '#2F9BFF',
+          100: '#DCE6EC',
+          400: '#5E7F92',
+          500: '#3F6578',
         },
         sun: {
-          100: '#FFF1BF',
-          400: '#FFCB3D',
-          500: '#FFB000',
+          100: '#EFE6C8',
+          400: '#D9B44A',
+          500: '#B8912C',
         },
         brand: {
-          50: '#F1EDFF',
-          100: '#E2D9FF',
-          200: '#C4B5FF',
-          500: '#6B4BFF',
-          600: '#5532E6',
-          700: '#4224B8',
+          50: '#FBEDE9',
+          100: '#F4D2C9',
+          200: '#E9A393',
+          500: '#D9401F',
+          600: '#B8331A',
+          700: '#8F2713',
         },
       },
       letterSpacing: {
-        eyebrow: '0.16em',
+        eyebrow: '0.14em',
       },
       boxShadow: {
-        pop: '0 12px 28px -14px rgba(85, 50, 230, 0.45)',
-        soft: '0 10px 30px -18px rgba(42, 36, 86, 0.35)',
+        // Flat, offset "poster" shadows instead of soft glows.
+        pop: '3px 3px 0 0 #151515',
+        soft: '0 1px 0 0 rgba(21, 21, 21, 0.12)',
       },
     },
   },

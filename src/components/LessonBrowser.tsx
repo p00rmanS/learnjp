@@ -235,7 +235,7 @@ export default function LessonBrowser({ onBack, initialUnitId, onOpenedUnit }: L
                 <li key={unit.id}>
                   <button
                     onClick={() => openUnit(unit)}
-                    className="group grid w-full grid-cols-[2.75rem_1fr_auto] items-center gap-3 rounded-2xl bg-paper-card p-3 text-left shadow-soft transition duration-200 hover:-translate-y-0.5 hover:shadow-pop sm:grid-cols-[3.5rem_3rem_1fr_auto] sm:gap-5 sm:p-4"
+                    className="group grid w-full grid-cols-[2.75rem_1fr_auto] items-center gap-3 rounded-md bg-paper-card p-3 text-left shadow-soft transition duration-200 hover:-translate-y-0.5 hover:shadow-pop sm:grid-cols-[3.5rem_3rem_1fr_auto] sm:gap-5 sm:p-4"
                   >
                     <span className="display tabular-nums text-2xl text-ai-400 group-hover:text-ai-600">
                       {number ?? '—'}
