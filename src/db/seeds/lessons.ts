@@ -38,6 +38,14 @@ import {
   pundasyonVocab3,
   vocabTaglishPun3,
 } from './lessons-pundasyon3';
+import {
+  pundasyonGuides4,
+  pundasyonSections4,
+  pundasyonStories4,
+  pundasyonUnits4,
+  pundasyonVocab4,
+  vocabTaglishPun4,
+} from './lessons-pundasyon4';
 import { vocabTaglishPun } from './vocabTaglishPun';
 import { unitGuides, unitStories } from './lessonStories';
 import { vocabTaglish } from './vocabTaglish';
@@ -236,7 +244,8 @@ function localize(item: Item): Item {
         vocabTaglish6[item.id] ??
         vocabTaglishPun[item.id] ??
         vocabTaglishPun2[item.id] ??
-        vocabTaglishPun3[item.id],
+        vocabTaglishPun3[item.id] ??
+        vocabTaglishPun4[item.id],
     };
   }
   if (item.type === 'grammar') {
@@ -286,11 +295,11 @@ export async function seedLessonContent(db: MichiDB) {
     description: 'Mga letrang Tsino, tinuturo sa kurso.',
   });
   await db.levels.put(pundasyonLevel);
-  const pundasyonAll = [...pundasyonUnits, ...pundasyonUnits2, ...pundasyonUnits3].map((unit) => ({
+  const pundasyonAll = [...pundasyonUnits, ...pundasyonUnits2, ...pundasyonUnits3, ...pundasyonUnits4].map((unit) => ({
     ...unit,
-    sections: { ...pundasyonSections, ...pundasyonSections2, ...pundasyonSections3 }[unit.id],
-    guide: { ...pundasyonGuides, ...pundasyonGuides2, ...pundasyonGuides3 }[unit.id],
-    story: { ...pundasyonStories, ...pundasyonStories2, ...pundasyonStories3 }[unit.id],
+    sections: { ...pundasyonSections, ...pundasyonSections2, ...pundasyonSections3, ...pundasyonSections4 }[unit.id],
+    guide: { ...pundasyonGuides, ...pundasyonGuides2, ...pundasyonGuides3, ...pundasyonGuides4 }[unit.id],
+    story: { ...pundasyonStories, ...pundasyonStories2, ...pundasyonStories3, ...pundasyonStories4 }[unit.id],
   }));
   await db.units.bulkPut([...stage0Units, ...yoonUnits, ...n5All, ...kanjiUnits, ...pundasyonAll]);
   const allItems: Item[] = [
@@ -313,6 +322,7 @@ export async function seedLessonContent(db: MichiDB) {
     ...pundasyonVocab,
     ...pundasyonVocab2,
     ...pundasyonVocab3,
+    ...pundasyonVocab4,
   ];
   await db.items.bulkPut(withSeedOrder(allItems.map(localize)));
 }
